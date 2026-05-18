@@ -1,0 +1,216 @@
+<style>
+.sbgame *{box-sizing:border-box;margin:0;padding:0}
+.sbgame{font-family:system-ui,-apple-system,sans-serif;width:100%;max-width:680px;margin:0 auto;padding:1.5rem 0}
+.sbgame .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:8px}
+.sbgame .header-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.sbgame .mode-pills{display:flex;gap:6px}
+.sbgame .pill{padding:6px 14px;font-size:13px;border:1px solid #ccc;border-radius:999px;cursor:pointer;color:#555;background:transparent}
+.sbgame .pill.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.sbgame .stats-row{display:flex;gap:10px;margin-bottom:1.5rem}
+.sbgame .stat{flex:1;background:#fff;border-radius:8px;padding:10px 14px;text-align:center;border:1px solid #e5e5e5}
+.sbgame .stat-n{font-size:22px;font-weight:600;color:#1a1a1a}
+.sbgame .stat-l{font-size:11px;color:#888;letter-spacing:.05em;text-transform:uppercase;margin-top:2px}
+.sbgame .progress-bar{height:4px;background:#e5e5e5;border-radius:2px;overflow:hidden;margin-bottom:1.5rem}
+.sbgame .progress-fill{height:100%;background:#1a1a1a;border-radius:2px;transition:width .3s}
+.sbgame .arena{background:#fff;border:1px solid #e5e5e5;border-radius:12px;padding:2rem;margin-bottom:1rem;min-height:240px;display:flex;flex-direction:column;align-items:center;gap:1.5rem}
+.sbgame .shape-canvas{width:200px;height:160px}
+.sbgame .question{font-size:18px;font-weight:600;color:#1a1a1a;text-align:center}
+.sbgame .hint{font-size:13px;color:#888;text-align:center;min-height:18px}
+.sbgame .choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;width:100%}
+.sbgame .choice-btn{padding:10px 14px;font-size:14px;border:1px solid #ccc;border-radius:8px;cursor:pointer;color:#1a1a1a;background:#fff;text-align:center;width:100%}
+.sbgame .choice-btn:hover{background:#f5f5f3}
+.sbgame .choice-btn.correct{background:#eaf3de;border-color:#639922;color:#27500a}
+.sbgame .choice-btn.wrong{background:#fcebeb;border-color:#a32d2d;color:#791f1f}
+.sbgame .choice-btn:disabled{cursor:default;opacity:.8}
+.sbgame .feedback-bar{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px}
+.sbgame .feedback-text{font-size:14px;font-weight:600;min-height:20px}
+.sbgame .feedback-text.ok{color:#3b6d11}
+.sbgame .feedback-text.bad{color:#a32d2d}
+.sbgame .next-btn{padding:8px 20px;font-size:14px;border:1px solid #ccc;border-radius:8px;cursor:pointer;color:#1a1a1a;background:transparent;display:none}
+.sbgame .next-btn.show{display:block}
+.sbgame .fact-tip{font-size:13px;color:#555;background:#f5f5f3;border-radius:8px;padding:8px 12px;margin-top:4px;line-height:1.5;display:none}
+.sbgame .fact-tip.show{display:block}
+.sbgame .end-screen{display:none;flex-direction:column;align-items:center;gap:1rem;padding:2rem;text-align:center;background:#fff;border:1px solid #e5e5e5;border-radius:12px}
+.sbgame .end-screen.show{display:flex}
+.sbgame .end-title{font-size:24px;font-weight:600;color:#1a1a1a}
+.sbgame .end-score{font-size:48px;font-weight:700;color:#1a1a1a}
+.sbgame .end-sub{font-size:14px;color:#888}
+.sbgame .restart-btn{padding:10px 28px;font-size:15px;border:1px solid #ccc;border-radius:8px;cursor:pointer;background:transparent;color:#1a1a1a}
+</style>
+
+<div class="sbgame">
+  <div class="header">
+    <div class="header-title">Shape Classifier - Year 7 Maths</div>
+    <div class="mode-pills">
+      <button class="pill active" onclick="sbSetMode('angles')" id="sb-pill-angles">Angles</button>
+      <button class="pill" onclick="sbSetMode('triangles')" id="sb-pill-triangles">Triangles</button>
+      <button class="pill" onclick="sbSetMode('mixed')" id="sb-pill-mixed">Mixed</button>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="sb-score">0</div><div class="stat-l">Score</div></div>
+    <div class="stat"><div class="stat-n" id="sb-streak">0</div><div class="stat-l">Streak</div></div>
+    <div class="stat"><div class="stat-n" id="sb-q">1/10</div><div class="stat-l">Question</div></div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="sb-prog" style="width:0%"></div></div>
+  <div class="arena" id="sb-arena">
+    <svg class="shape-canvas" id="sb-svg" viewBox="0 0 200 160"></svg>
+    <div class="question" id="sb-question">What type of angle is this?</div>
+    <div class="hint" id="sb-hint"></div>
+    <div class="choices" id="sb-choices"></div>
+  </div>
+  <div class="fact-tip" id="sb-fact"></div>
+  <div class="feedback-bar">
+    <div class="feedback-text" id="sb-feedback"></div>
+    <button class="next-btn" id="sb-next" onclick="sbNext()">Next &gt;&gt;</button>
+  </div>
+  <div class="end-screen" id="sb-end">
+    <div class="end-title" id="sb-end-title">Round complete!</div>
+    <div class="end-score" id="sb-end-score"></div>
+    <div class="end-sub" id="sb-end-sub"></div>
+    <button class="restart-btn" onclick="sbRestart()">Play again</button>
+  </div>
+</div>
+
+<script>
+(function(){
+var TOTAL=10;
+var angleItems=[
+  {type:'angle',label:'Acute',angle:35,choices:['Acute','Obtuse','Right','Reflex'],fact:'Acute angles are less than 90 degrees. The word acute means sharp - these angles look pointy!'},
+  {type:'angle',label:'Acute',angle:60,choices:['Acute','Obtuse','Right','Reflex'],fact:'60 degrees is one-third of a right angle. An equilateral triangle has three 60 degree angles.'},
+  {type:'angle',label:'Acute',angle:20,choices:['Acute','Right','Obtuse','Straight'],fact:'At just 20 degrees, this is a very sharp angle - well under 90 degrees.'},
+  {type:'angle',label:'Acute',angle:75,choices:['Acute','Right','Obtuse','Reflex'],fact:'75 degrees is three-quarters of a right angle - clearly acute but getting close.'},
+  {type:'angle',label:'Right',angle:90,choices:['Acute','Right','Obtuse','Reflex'],fact:'Right angles are exactly 90 degrees and get a special square symbol. Every corner of a square is a right angle.'},
+  {type:'angle',label:'Obtuse',angle:120,choices:['Acute','Right','Obtuse','Reflex'],fact:'Obtuse angles are between 90 and 180 degrees. The word obtuse means blunt - they look wide and open.'},
+  {type:'angle',label:'Obtuse',angle:150,choices:['Right','Obtuse','Straight','Reflex'],fact:'150 degrees is close to a straight line. Its supplement is 30 degrees.'},
+  {type:'angle',label:'Obtuse',angle:105,choices:['Acute','Right','Obtuse','Straight'],fact:'Just over 90 degrees, this is clearly obtuse - wider than a right angle.'},
+  {type:'angle',label:'Straight',angle:180,choices:['Right','Straight','Obtuse','Reflex'],fact:'A straight angle is exactly 180 degrees - both arms form a flat, straight line.'},
+  {type:'angle',label:'Reflex',angle:240,choices:['Obtuse','Straight','Reflex','Right'],fact:'Reflex angles are over 180 degrees - the go-around-the-long-way angles.'},
+  {type:'angle',label:'Reflex',angle:300,choices:['Straight','Obtuse','Reflex','Acute'],fact:'300 degrees is five-sixths of a full turn. Its non-reflex counterpart is only 60 degrees.'},
+  {type:'angle',label:'Acute',angle:45,choices:['Acute','Obtuse','Right','Reflex'],fact:'45 degrees is exactly half a right angle. You see it on the diagonal of a square.'},
+  {type:'angle',label:'Obtuse',angle:135,choices:['Acute','Right','Obtuse','Reflex'],fact:'135 + 45 = 180 degrees. These two angles are supplementary.'}
+];
+var triangleItems=[
+  {type:'triangle',label:'Equilateral',pts:[[100,20],[20,145],[180,145]],choices:['Equilateral','Isosceles','Scalene','Right-angled'],fact:'All three sides equal, all angles are 60 degrees. The most symmetrical triangle!'},
+  {type:'triangle',label:'Isosceles',pts:[[100,20],[30,145],[170,145]],choices:['Equilateral','Isosceles','Scalene','Right-angled'],fact:'Isosceles triangles have two equal sides and two equal base angles.'},
+  {type:'triangle',label:'Isosceles',pts:[[100,15],[50,145],[150,145]],choices:['Equilateral','Isosceles','Scalene','Right-angled'],fact:'The two legs are the same length - the two base angles are always equal.'},
+  {type:'triangle',label:'Scalene',pts:[[30,20],[170,30],[60,145]],choices:['Equilateral','Isosceles','Scalene','Right-angled'],fact:'Scalene triangles have all three sides different. No sides equal, no angles equal.'},
+  {type:'triangle',label:'Scalene',pts:[[20,145],[165,110],[80,20]],choices:['Isosceles','Scalene','Right-angled','Equilateral'],fact:'The word scalene means uneven. All three angles are different too.'},
+  {type:'triangle',label:'Right-angled',pts:[[20,145],[20,25],[150,145]],choices:['Equilateral','Isosceles','Scalene','Right-angled'],fact:'A right-angled triangle has one 90 degree angle. The side opposite is the hypotenuse.'},
+  {type:'triangle',label:'Right-angled',pts:[[20,145],[160,145],[160,30]],choices:['Isosceles','Scalene','Right-angled','Equilateral'],fact:'Right-angled triangles are the basis of trigonometry - coming up in Year 9!'},
+  {type:'triangle',label:'Isosceles',pts:[[100,20],[40,145],[160,145]],choices:['Equilateral','Isosceles','Scalene','Right-angled'],fact:'A wide isosceles - the apex angle is large but the base angles are equal.'},
+  {type:'triangle',label:'Scalene',pts:[[40,30],[170,80],[50,145]],choices:['Isosceles','Scalene','Right-angled','Equilateral'],fact:'Every single side and angle is different - totally irregular.'},
+  {type:'triangle',label:'Right-angled',pts:[[20,20],[20,145],[160,145]],choices:['Equilateral','Isosceles','Right-angled','Scalene'],fact:'The right angle is at the bottom-left corner. Notice the small square marker.'}
+];
+var mode='angles',queue=[],qIdx=0,score=0,streak=0,answered=false;
+function g(id){return document.getElementById(id);}
+window.sbSetMode=function(m){
+  mode=m;
+  ['angles','triangles','mixed'].forEach(function(x){g('sb-pill-'+x).className='pill'+(m===x?' active':'');});
+  sbRestart();
+};
+function buildQueue(){
+  var pool=mode==='angles'?angleItems.slice():mode==='triangles'?triangleItems.slice():angleItems.concat(triangleItems);
+  for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}
+  queue=pool.slice(0,TOTAL);
+}
+function norm(v){var l=Math.sqrt(v[0]*v[0]+v[1]*v[1]);return l>0?[v[0]/l,v[1]/l]:[0,0];}
+function drawAngle(deg){
+  var svg=g('sb-svg');
+  var cx=50,cy=125,armLen=110,arcR=36;
+  var isRight=deg===90,isStraight=deg===180,isReflex=deg>180;
+  var rad=deg*Math.PI/180;
+  var ax=cx+armLen*Math.cos(-rad),ay=cy+armLen*Math.sin(-rad);
+  var arc='';
+  if(isRight){
+    arc='<rect x="'+cx+'" y="'+(cy-16)+'" width="16" height="16" fill="none" stroke="#185FA5" stroke-width="1.5"/>';
+  } else if(!isStraight){
+    var a1x=cx+arcR,a2x=cx+arcR*Math.cos(-rad),a2y=cy+arcR*Math.sin(-rad);
+    arc='<path d="M '+a1x+' '+cy+' A '+arcR+' '+arcR+' 0 '+(isReflex?1:0)+' 0 '+a2x.toFixed(1)+' '+a2y.toFixed(1)+'" fill="none" stroke="#185FA5" stroke-width="1.2"/>';
+  }
+  var lx=cx+52*Math.cos(-deg/2*Math.PI/180),ly=cy+52*Math.sin(-deg/2*Math.PI/180);
+  svg.innerHTML=
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+armLen)+'" y2="'+cy+'" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/>'+
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+ax.toFixed(1)+'" y2="'+ay.toFixed(1)+'" stroke="#185FA5" stroke-width="2" stroke-linecap="round"/>'+
+    arc+
+    '<circle cx="'+cx+'" cy="'+cy+'" r="3" fill="#185FA5"/>'+
+    '<text x="'+lx.toFixed(1)+'" y="'+(ly+4).toFixed(1)+'" font-size="12" fill="#888" font-family="sans-serif" text-anchor="middle">'+deg+'&#176;</text>';
+}
+function drawTriangle(pts,label){
+  var svg=g('sb-svg');
+  var p=pts;
+  var d='M '+p[0][0]+' '+p[0][1]+' L '+p[1][0]+' '+p[1][1]+' L '+p[2][0]+' '+p[2][1]+' Z';
+  var extra='';
+  if(label==='Right-angled'){
+    for(var i=0;i<3;i++){
+      var a=p[(i+1)%3],b=p[i],c=p[(i+2)%3];
+      var v1=[a[0]-b[0],a[1]-b[1]],v2=[c[0]-b[0],c[1]-b[1]];
+      if(Math.abs(v1[0]*v2[0]+v1[1]*v2[1])<300){
+        var u1=norm(v1),u2=norm(v2),s=13;
+        var q=[[b[0]+u1[0]*s,b[1]+u1[1]*s],[b[0]+u1[0]*s+u2[0]*s,b[1]+u1[1]*s+u2[1]*s],[b[0]+u2[0]*s,b[1]+u2[1]*s]];
+        extra='<path d="M '+q[0][0].toFixed(1)+' '+q[0][1].toFixed(1)+' L '+q[1][0].toFixed(1)+' '+q[1][1].toFixed(1)+' L '+q[2][0].toFixed(1)+' '+q[2][1].toFixed(1)+'" fill="none" stroke="#185FA5" stroke-width="1.2"/>';
+        break;
+      }
+    }
+  }
+  if(label==='Equilateral'||label==='Isosceles'){
+    var tc=label==='Equilateral'?3:2;
+    for(var i=0;i<tc;i++){
+      var a=p[i],b=p[(i+1)%3],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],ll=Math.sqrt(dx*dx+dy*dy),nx=-dy/ll*6,ny=dx/ll*6;
+      extra+='<line x1="'+(mx-nx*0.6).toFixed(1)+'" y1="'+(my-ny*0.6).toFixed(1)+'" x2="'+(mx+nx*0.6).toFixed(1)+'" y2="'+(my+ny*0.6).toFixed(1)+'" stroke="#185FA5" stroke-width="1.5"/>';
+    }
+  }
+  svg.innerHTML='<path d="'+d+'" fill="#e6f1fb" stroke="#185FA5" stroke-width="2" stroke-linejoin="round"/>'+extra;
+}
+function render(){
+  answered=false;
+  var item=queue[qIdx];
+  g('sb-feedback').textContent='';g('sb-feedback').className='feedback-text';
+  g('sb-next').className='next-btn';g('sb-fact').className='fact-tip';
+  g('sb-score').textContent=score;g('sb-streak').textContent=streak;
+  g('sb-q').textContent=(qIdx+1)+'/'+TOTAL;
+  g('sb-prog').style.width=Math.round(qIdx/TOTAL*100)+'%';
+  if(item.type==='angle'){drawAngle(item.angle);g('sb-question').textContent='What type of angle is this?';g('sb-hint').textContent=item.angle+' degrees';}
+  else{drawTriangle(item.pts,item.label);g('sb-question').textContent='What type of triangle is this?';g('sb-hint').textContent='';}
+  var sh=item.choices.slice().sort(function(){return Math.random()-.5;});
+  var ch=g('sb-choices');ch.innerHTML='';
+  sh.forEach(function(c){
+    var btn=document.createElement('button');
+    btn.className='choice-btn';btn.textContent=c;
+    btn.onclick=function(){sbAnswer(btn,c,item);};
+    ch.appendChild(btn);
+  });
+  g('sb-end').className='end-screen';
+  g('sb-arena').style.display='flex';
+}
+function sbAnswer(btn,chosen,item){
+  if(answered)return;answered=true;
+  var correct=chosen===item.label;
+  g('sb-choices').querySelectorAll('.choice-btn').forEach(function(b){
+    b.disabled=true;if(b.textContent===item.label)b.classList.add('correct');
+  });
+  if(!correct)btn.classList.add('wrong');
+  var fb=g('sb-feedback');
+  if(correct){score++;streak++;fb.textContent=streak>=3?'On fire! ('+streak+' in a row)':'Correct!';fb.className='feedback-text ok';}
+  else{streak=0;fb.textContent='Not quite - the answer is '+item.label+'.';fb.className='feedback-text bad';}
+  g('sb-fact').textContent=item.fact;g('sb-fact').className='fact-tip show';
+  g('sb-score').textContent=score;g('sb-streak').textContent=streak;
+  g('sb-next').className='next-btn show';
+}
+window.sbNext=function(){qIdx++;if(qIdx>=TOTAL)showEnd();else render();};
+function showEnd(){
+  g('sb-arena').style.display='none';g('sb-next').className='next-btn';
+  g('sb-feedback').textContent='';g('sb-fact').className='fact-tip';
+  g('sb-prog').style.width='100%';g('sb-q').textContent=TOTAL+'/'+TOTAL;
+  var t=score>=9?'Brilliant work!':score>=6?'Well done!':'Keep practising!';
+  var s=score>=9?'You are a shape classification star.':score>=6?'You got most of them right.':'Review the notes and try again!';
+  g('sb-end-title').textContent=t;g('sb-end-score').textContent=score+' / '+TOTAL;g('sb-end-sub').textContent=s;
+  g('sb-end').className='end-screen show';
+}
+window.sbRestart=function(){
+  qIdx=0;score=0;streak=0;buildQueue();
+  g('sb-arena').style.display='flex';g('sb-end').className='end-screen';render();
+};
+buildQueue();render();
+})();
+</script>
