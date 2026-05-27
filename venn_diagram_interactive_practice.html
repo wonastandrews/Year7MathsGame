@@ -1,0 +1,416 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1.25rem 1rem;font-family:var(--font-sans)}
+.header{text-align:center;margin-bottom:1.25rem}
+.header h2{font-size:18px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.header p{font-size:13px;color:var(--color-text-secondary)}
+.nav-row{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;justify-content:center}
+.qbtn{padding:6px 14px;font-size:13px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all 0.15s}
+.qbtn:hover{background:var(--color-background-secondary)}
+.qbtn.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC;font-weight:500}
+.qbtn.done{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+.q-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.q-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem}
+.diagram-area{display:flex;flex-direction:column;align-items:center;gap:1rem}
+.step-track{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:0.5rem}
+.step-pip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);background:var(--color-background-secondary);cursor:default}
+.step-pip.active{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.step-pip.completed{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.step-connector{width:16px;height:1px;background:var(--color-border-secondary)}
+.step-hint{font-size:13px;color:var(--color-text-secondary);text-align:center;min-height:20px;margin-bottom:0.75rem}
+.step-hint strong{color:var(--color-text-primary);font-weight:500}
+.btn-row{display:flex;gap:8px;justify-content:center;margin-top:0.75rem}
+.btn-next{padding:8px 20px;font-size:13px;font-weight:500;border-radius:var(--border-radius-md);border:0.5px solid #AFA9EC;background:#EEEDFE;color:#3C3489;cursor:pointer}
+.btn-next:hover{background:#CECBF6}
+.btn-next:disabled{opacity:0.4;cursor:default}
+.btn-prev{padding:8px 16px;font-size:13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.btn-prev:hover{background:var(--color-background-secondary)}
+.rule-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;margin-bottom:0.75rem}
+.rule-int{background:#FAEEDA;color:#633806;border:0.5px solid #EF9F27}
+.rule-uni{background:#EEEDFE;color:#3C3489;border:0.5px solid #7F77DD}
+.final-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 14px;font-size:13px;color:var(--color-text-secondary);line-height:1.5;text-align:center;margin-top:0.5rem}
+.final-box strong{color:var(--color-text-primary);font-weight:500}
+.progress-bar{height:4px;background:var(--color-background-secondary);border-radius:2px;margin-bottom:1.25rem;overflow:hidden}
+.progress-fill{height:100%;background:#5DCAA5;border-radius:2px;transition:width 0.3s}
+.complete-msg{text-align:center;padding:1.5rem;color:var(--color-text-secondary);font-size:14px}
+.complete-msg strong{font-size:18px;color:var(--color-text-primary);display:block;margin-bottom:6px;font-weight:500}
+</style>
+
+<h2 class="sr-only">Interactive Venn diagram shading practice for Unit 1 Methods</h2>
+
+<div class="wrap">
+  <div class="header">
+    <h2>Venn diagram shading — interactive practice</h2>
+    <p>Unit 1 Methods &nbsp;·&nbsp; Follow the steps, then click "Next step" to reveal each stage</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+  <div class="nav-row" id="nav"></div>
+
+  <div class="card" id="main-card">
+    <div id="rule-area"></div>
+    <div class="q-title" id="qtitle"></div>
+    <div class="q-sub" id="qsub"></div>
+    <div class="diagram-area">
+      <div class="step-track" id="step-track"></div>
+      <div class="step-hint" id="step-hint"></div>
+      <canvas id="venn" width="260" height="180" style="display:block"></canvas>
+      <div class="btn-row">
+        <button class="btn-prev" id="btn-prev" onclick="prevStep()">Back</button>
+        <button class="btn-next" id="btn-next" onclick="nextStep()">Next step</button>
+      </div>
+      <div class="final-box" id="final-box" style="display:none"></div>
+    </div>
+  </div>
+
+  <div style="display:none" id="complete-area">
+    <div class="complete-msg">
+      <strong>All 6 questions complete!</strong>
+      Well done — you've practised both intersection (∩) and union (∪) shading.
+    </div>
+    <button class="btn-next" style="display:block;margin:0 auto" onclick="resetAll()">Start again</button>
+  </div>
+</div>
+
+<script>
+const W=260,H=180;
+const cx1=90,cy=90,rx=62,ry=62;
+const cx2=170,cy2=90;
+
+const PURPLE='rgba(83,74,183,';
+const TEAL='rgba(15,110,84,';
+const AMBER='rgba(186,117,23,';
+
+const questions=[
+  {
+    id:'A∩B', title:'Shade  A ∩ B', sub:'Intersection of A and B — the part belonging to both sets',
+    type:'int',
+    steps:[
+      {hint:'<strong>Step 1:</strong> Shade circle A — everything inside A gets coloured',draw:'shadeA'},
+      {hint:'<strong>Step 2:</strong> Now shade circle B — notice where the two shadings overlap',draw:'shadeAB'},
+      {hint:'<strong>Step 3:</strong> The overlap (amber) is where both shadings meet — this is the key region',draw:'showOverlap'},
+      {hint:'<strong>Step 4 — Final answer:</strong> Remove A and B shading. Keep ONLY the overlap.',draw:'finalInt',final:'∩ rule: keep only the overlapping region — the part that belongs to <strong>both A and B</strong> at once.'}
+    ]
+  },
+  {
+    id:"A∩B'", title:"Shade  A ∩ B'", sub:"A intersect not-B — the part of A that is outside B",
+    type:'int',
+    steps:[
+      {hint:'<strong>Step 1:</strong> Shade circle A',draw:'shadeA'},
+      {hint:"<strong>Step 2:</strong> Shade B' — everything <em>outside</em> B (including the rectangle border)",draw:'shadeABcomp'},
+      {hint:"<strong>Step 3:</strong> Find where A's shading and B' overlap — that's the left crescent of A",draw:'showOverlapABcomp'},
+      {hint:"<strong>Step 4 — Final answer:</strong> Keep only that overlap — the part of A outside B.",draw:'finalABcomp',final:"∩ rule applied: keep only the intersection of A and B'. That is the <strong>left crescent of A</strong>, not including any part inside B."}
+    ]
+  },
+  {
+    id:"A'∩B", title:"Shade  A' ∩ B", sub:"Not-A intersect B — the part of B that is outside A",
+    type:'int',
+    steps:[
+      {hint:"<strong>Step 1:</strong> Shade A' — everything outside A",draw:'shadeAcomp'},
+      {hint:'<strong>Step 2:</strong> Now shade circle B',draw:'shadeAcompB'},
+      {hint:"<strong>Step 3:</strong> Find where A' and B overlap — the right crescent of B",draw:'showOverlapAcompB'},
+      {hint:'<strong>Step 4 — Final answer:</strong> Keep only the right crescent of B.',draw:'finalAcompB',final:"∩ rule applied: the intersection is the <strong>right crescent of B</strong> — the part of B that sits outside circle A."}
+    ]
+  },
+  {
+    id:'A∪B', title:'Shade  A ∪ B', sub:'Union of A and B — everything belonging to A, B, or both',
+    type:'uni',
+    steps:[
+      {hint:'<strong>Step 1:</strong> Shade circle A',draw:'shadeA'},
+      {hint:'<strong>Step 2:</strong> Also shade circle B — both circles are now covered',draw:'shadeAB'},
+      {hint:'<strong>Step 3:</strong> All shaded regions are highlighted — A, B, and their overlap',draw:'highlightAll'},
+      {hint:'<strong>Step 4 — Final answer:</strong> Keep ALL shaded regions. Nothing is removed for union.',draw:'finalUnion',final:'∪ rule: keep everything that was shaded — <strong>all of A, all of B</strong>, including the part they share.'}
+    ]
+  },
+  {
+    id:"A∪B'", title:"Shade  A ∪ B'", sub:"A union not-B — everything in A or outside B",
+    type:'uni',
+    steps:[
+      {hint:'<strong>Step 1:</strong> Shade circle A',draw:'shadeA'},
+      {hint:"<strong>Step 2:</strong> Shade B' — everything outside B",draw:'shadeABcomp_u'},
+      {hint:"<strong>Step 3:</strong> All of A plus the whole outside-B region is shaded",draw:'shadeABcomp_u'},
+      {hint:"<strong>Step 4 — Final answer:</strong> Keep all of it — only the B-only crescent stays unshaded.",draw:'finalAUBcomp',final:"∪ rule: keep every shaded area. Only the <strong>right crescent of B</strong> (B-only, not in A) stays empty."}
+    ]
+  },
+  {
+    id:"A'∪B", title:"Shade  A' ∪ B", sub:"Not-A union B — everything outside A or inside B",
+    type:'uni',
+    steps:[
+      {hint:"<strong>Step 1:</strong> Shade A' — everything outside A",draw:'shadeAcomp'},
+      {hint:'<strong>Step 2:</strong> Also shade circle B',draw:'shadeAcompB_u'},
+      {hint:'<strong>Step 3:</strong> The outside-A region plus all of B are shaded',draw:'shadeAcompB_u'},
+      {hint:"<strong>Step 4 — Final answer:</strong> Keep all shaded — only the A-only crescent stays empty.",draw:'finalAcompUB',final:"∪ rule: keep every shaded area. Only the <strong>left crescent of A</strong> (A-only, not in B) stays empty."}
+    ]
+  }
+];
+
+let currentQ=0, currentStep=0, completed=new Set();
+
+function drawVenn(mode){
+  const canvas=document.getElementById('venn');
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,W,H);
+
+  function circleA(fill){
+    ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  function circleB(fill){
+    ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  function rect(fill){
+    ctx.fillStyle=fill;ctx.fillRect(4,4,W-8,H-8);
+  }
+  function clipToA(fn){
+    ctx.save();ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.clip();fn();ctx.restore();
+  }
+  function clipToB(fn){
+    ctx.save();ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.clip();fn();ctx.restore();
+  }
+  function clipOutsideA(fn){
+    ctx.save();
+    ctx.beginPath();ctx.rect(0,0,W,H);ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2,true);ctx.clip();
+    fn();ctx.restore();
+  }
+  function clipOutsideB(fn){
+    ctx.save();
+    ctx.beginPath();ctx.rect(0,0,W,H);ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2,true);ctx.clip();
+    fn();ctx.restore();
+  }
+  function drawOverlapOnly(){
+    clipToA(()=>{
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);
+      ctx.fillStyle=AMBER+'0.65)';ctx.fill();
+    });
+  }
+  function drawLabels(){
+    ctx.font='500 13px Georgia, serif';
+    ctx.fillStyle='#3C3489';ctx.fillText('A',cx1-34,cy-38);
+    ctx.fillStyle='#085041';ctx.fillText('B',cx2+22,cy-38);
+  }
+  function outline(){
+    ctx.strokeStyle='rgba(0,0,0,0.08)';ctx.lineWidth=1;
+    ctx.strokeRect(4,4,W-8,H-8);
+  }
+
+  switch(mode){
+    case 'shadeA':
+      circleA(PURPLE+'0.3)');circleB(null);drawLabels();break;
+
+    case 'shadeAB':
+      circleA(PURPLE+'0.28)');circleB(TEAL+'0.25)');drawLabels();break;
+
+    case 'showOverlap':
+      circleA(PURPLE+'0.18)');circleB(TEAL+'0.15)');
+      drawOverlapOnly();
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'finalInt':
+      circleA(null);circleB(null);
+      drawOverlapOnly();
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'shadeABcomp':
+      outline();
+      clipOutsideB(()=>{ctx.fillStyle=TEAL+'0.2)';ctx.fillRect(0,0,W,H);});
+      circleA(PURPLE+'0.3)');
+      circleB(null);drawLabels();break;
+
+    case 'showOverlapABcomp':
+      outline();
+      clipOutsideB(()=>{ctx.fillStyle=TEAL+'0.12)';ctx.fillRect(0,0,W,H);});
+      circleA(PURPLE+'0.18)');
+      clipToA(()=>{
+        clipOutsideB(()=>{ctx.fillStyle=AMBER+'0.65)';ctx.fillRect(0,0,W,H);});
+      });
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'finalABcomp':
+      circleA(null);circleB(null);
+      clipToA(()=>{
+        clipOutsideB(()=>{ctx.fillStyle=AMBER+'0.65)';ctx.fillRect(0,0,W,H);});
+      });
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'shadeAcomp':
+      outline();
+      clipOutsideA(()=>{ctx.fillStyle=PURPLE+'0.22)';ctx.fillRect(0,0,W,H);});
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'shadeAcompB':
+      outline();
+      clipOutsideA(()=>{ctx.fillStyle=PURPLE+'0.18)';ctx.fillRect(0,0,W,H);});
+      circleB(TEAL+'0.28)');
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'showOverlapAcompB':
+      outline();
+      clipOutsideA(()=>{ctx.fillStyle=PURPLE+'0.12)';ctx.fillRect(0,0,W,H);});
+      circleB(TEAL+'0.18)');
+      clipToB(()=>{
+        clipOutsideA(()=>{ctx.fillStyle=AMBER+'0.65)';ctx.fillRect(0,0,W,H);});
+      });
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'finalAcompB':
+      circleA(null);circleB(null);
+      clipToB(()=>{
+        clipOutsideA(()=>{ctx.fillStyle=AMBER+'0.65)';ctx.fillRect(0,0,W,H);});
+      });
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'highlightAll':
+      circleA(PURPLE+'0.28)');circleB(TEAL+'0.25)');
+      drawOverlapOnly();
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'finalUnion':
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);
+      ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);
+      ctx.fillStyle=PURPLE+'0.35)';ctx.fill();ctx.restore();
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'shadeABcomp_u':
+      outline();
+      clipOutsideB(()=>{ctx.fillStyle=TEAL+'0.2)';ctx.fillRect(0,0,W,H);});
+      circleA(PURPLE+'0.3)');
+      circleB(null);drawLabels();break;
+
+    case 'finalAUBcomp':
+      outline();
+      clipOutsideB(()=>{ctx.fillStyle=PURPLE+'0.32)';ctx.fillRect(0,0,W,H);});
+      circleA(PURPLE+'0.32)');
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'shadeAcompB_u':
+      outline();
+      clipOutsideA(()=>{ctx.fillStyle=PURPLE+'0.22)';ctx.fillRect(0,0,W,H);});
+      circleB(TEAL+'0.3)');
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    case 'finalAcompUB':
+      outline();
+      clipOutsideA(()=>{ctx.fillStyle=PURPLE+'0.32)';ctx.fillRect(0,0,W,H);});
+      circleB(PURPLE+'0.32)');
+      ctx.beginPath();ctx.ellipse(cx1,cy,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#534AB7';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.beginPath();ctx.ellipse(cx2,cy2,rx,ry,0,0,Math.PI*2);ctx.strokeStyle='#0F6E56';ctx.lineWidth=1.5;ctx.stroke();
+      drawLabels();break;
+
+    default:
+      circleA(null);circleB(null);drawLabels();
+  }
+}
+
+function render(){
+  const q=questions[currentQ];
+  const s=q.steps[currentStep];
+  const totalSteps=q.steps.length;
+
+  document.getElementById('qtitle').textContent=q.title;
+  document.getElementById('qsub').textContent=q.sub;
+  document.getElementById('step-hint').innerHTML=s.hint;
+
+  const ra=document.getElementById('rule-area');
+  ra.innerHTML=`<div class="rule-pill ${q.type==='int'?'rule-int':'rule-uni'}" style="margin-bottom:10px">${q.type==='int'?'∩ Intersection':'∪ Union'}</div>`;
+
+  const track=document.getElementById('step-track');
+  track.innerHTML='';
+  for(let i=0;i<totalSteps;i++){
+    if(i>0){const c=document.createElement('div');c.className='step-connector';track.appendChild(c);}
+    const pip=document.createElement('div');
+    pip.className='step-pip'+(i<currentStep?' completed':i===currentStep?' active':'');
+    pip.textContent=i+1;
+    track.appendChild(pip);
+  }
+
+  drawVenn(s.draw);
+
+  const fb=document.getElementById('final-box');
+  if(s.final){fb.style.display='block';fb.innerHTML=s.final;}
+  else{fb.style.display='none';}
+
+  document.getElementById('btn-prev').disabled=(currentStep===0&&currentQ===0);
+  const isLast=(currentStep===totalSteps-1);
+  const btn=document.getElementById('btn-next');
+  if(isLast&&currentQ===questions.length-1){btn.textContent='Finish';}
+  else if(isLast){btn.textContent='Next question →';}
+  else{btn.textContent='Next step';}
+
+  const prog=Math.round(((currentQ*4+currentStep)/(questions.length*4))*100);
+  document.getElementById('prog').style.width=prog+'%';
+
+  renderNav();
+}
+
+function renderNav(){
+  const nav=document.getElementById('nav');
+  nav.innerHTML='';
+  questions.forEach((q,i)=>{
+    const b=document.createElement('button');
+    b.className='qbtn'+(i===currentQ?' active':completed.has(i)?' done':'');
+    b.textContent=q.id;
+    b.onclick=()=>{currentQ=i;currentStep=0;render();};
+    nav.appendChild(b);
+  });
+}
+
+function nextStep(){
+  const q=questions[currentQ];
+  if(currentStep<q.steps.length-1){currentStep++;render();}
+  else{
+    completed.add(currentQ);
+    if(currentQ<questions.length-1){currentQ++;currentStep=0;render();}
+    else{
+      document.getElementById('prog').style.width='100%';
+      document.getElementById('main-card').style.display='none';
+      document.getElementById('complete-area').style.display='block';
+      renderNav();
+    }
+  }
+}
+
+function prevStep(){
+  if(currentStep>0){currentStep--;render();}
+  else if(currentQ>0){currentQ--;currentStep=questions[currentQ].steps.length-1;render();}
+}
+
+function resetAll(){
+  currentQ=0;currentStep=0;completed.clear();
+  document.getElementById('main-card').style.display='block';
+  document.getElementById('complete-area').style.display='none';
+  render();
+}
+
+render();
+</script>
