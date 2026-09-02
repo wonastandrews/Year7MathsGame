@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equation Match — Word Problems to Equations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#123A66;
+    --bg:#1E5390;
+    --bg-light:#2E6BB0;
+    --ink:#1B2A3A;
+    --ink-soft:#5E738C;
+    --teal:#1F6F6B;
+    --teal-tint:#E9F3F2;
+    --coral:#C9564A;
+    --coral-tint:#FBECE9;
+    --amber:#B9840F;
+    --amber-tint:#FBF2DF;
+    --card:#FFFFFF;
+    --panel:#F3F6FA;
+    --panel-line:#DCE5EF;
+    --radius:3px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:var(--bg);
+    background-image: radial-gradient(circle at 15% -10%, var(--bg-light) 0%, transparent 45%),
+                       radial-gradient(circle at 100% 110%, var(--bg-deep) 0%, transparent 55%);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    min-height:100vh;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+  }
+
+  .wrap{
+    max-width:700px;
+    margin:0 auto;
+    padding:38px 22px 70px;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    gap:16px;
+    margin-bottom:22px;
+    padding-bottom:18px;
+    border-bottom:2.5px solid rgba(255,255,255,0.35);
+  }
+
+  .title-block h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px, 5vw, 38px);
+    line-height:1.05;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+    color:#FFFFFF;
+  }
+
+  .title-block h1 em{
+    font-style:italic;
+    color:#F5C452;
+  }
+
+  .title-block p{
+    margin:0;
+    font-size:14.5px;
+    color:#C9DBEF;
+    max-width:40ch;
+  }
+
+  .score-block{
+    text-align:right;
+    flex-shrink:0;
+  }
+
+  .score-block .num{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:30px;
+    line-height:1;
+    color:#F5C452;
+  }
+
+  .score-block .label{
+    font-size:12px;
+    color:#C9DBEF;
+    margin-top:2px;
+  }
+
+  /* ---------- Progress ---------- */
+  .progress{
+    display:flex;
+    gap:6px;
+    margin-bottom:26px;
+  }
+
+  .progress .step{
+    flex:1;
+    height:6px;
+    background:rgba(255,255,255,0.28);
+    border-radius:1px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .progress .step.current{ background:#DCE8F5; }
+  .progress .step.correct{ background:var(--amber); }
+  .progress .step.wrong{ background:var(--coral); }
+
+  /* ---------- Jump-to-question panel ---------- */
+  .jump-wrap{
+    margin-bottom:22px;
+  }
+
+  .jump-toggle{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:rgba(255,255,255,0.12);
+    border:1.5px solid rgba(255,255,255,0.35);
+    color:#EAF1FA;
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .jump-toggle:hover{ background:rgba(255,255,255,0.2); }
+  .jump-toggle:focus-visible{ outline:3px solid #F5C452; outline-offset:2px; }
+
+  .jump-toggle .chev{
+    display:inline-block;
+    font-size:11px;
+    transition:transform 0.15s ease;
+  }
+  .jump-toggle.open .chev{ transform:rotate(180deg); }
+
+  .jump-grid{
+    display:none;
+    grid-template-columns:repeat(10, 1fr);
+    gap:8px;
+    margin-top:12px;
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius);
+    padding:14px;
+    box-shadow: 4px 4px 0 rgba(35,48,44,0.08);
+  }
+  .jump-grid.show{ display:grid; }
+
+  .jump-num{
+    aspect-ratio:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px;
+    font-weight:600;
+    border:1.5px solid var(--panel-line);
+    background:var(--panel);
+    color:var(--ink);
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .jump-num:hover{ border-color:var(--ink); }
+  .jump-num:focus-visible{ outline:2.5px solid var(--teal); outline-offset:1px; }
+
+  .jump-num.jc{ background:var(--amber-tint); border-color:var(--amber); color:var(--amber); }
+  .jump-num.jw{ background:var(--coral-tint); border-color:var(--coral); color:var(--coral); }
+  .jump-num.jcur{ border-color:var(--teal); border-width:2.5px; }
+
+  @media (max-width:520px){
+    .jump-grid{ grid-template-columns:repeat(6, 1fr); }
+  }
+
+  /* ---------- Card ---------- */
+  .card{
+    background:var(--card);
+    border:1.5px solid var(--ink);
+    border-radius:var(--radius);
+    padding:30px 30px 26px;
+    box-shadow: 5px 5px 0 rgba(35,48,44,0.08);
+  }
+
+  .qmeta{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:14px;
+  }
+
+  .qmeta .qnum{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    font-weight:600;
+    color:var(--teal);
+    letter-spacing:0.02em;
+  }
+
+  .hint-toggle{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    text-decoration:underline;
+    text-underline-offset:3px;
+    cursor:pointer;
+    padding:2px;
+  }
+
+  .hint-toggle:hover{ color:var(--ink); }
+
+  .hint-box{
+    display:none;
+    background:var(--teal-tint);
+    border-left:3px solid var(--teal);
+    padding:10px 14px;
+    font-size:13.5px;
+    color:var(--ink);
+    margin-bottom:16px;
+    border-radius:0 3px 3px 0;
+  }
+  .hint-box.show{ display:block; }
+
+  .prompt{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:19px;
+    line-height:1.45;
+    margin:0 0 22px;
+    color:var(--ink);
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+    width:100%;
+    text-align:left;
+    background:var(--panel);
+    border:1.5px solid var(--panel-line);
+    border-radius:2px;
+    padding:12px 14px;
+    cursor:pointer;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    line-height:1.55;
+    color:var(--ink);
+    transition:border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+  }
+
+  .opt:hover:not(:disabled){
+    border-color:var(--ink);
+    transform:translateX(2px);
+  }
+
+  .opt:focus-visible{
+    outline:3px solid var(--teal);
+    outline-offset:2px;
+  }
+
+  .opt .letter{
+    flex-shrink:0;
+    width:26px;
+    height:26px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1.5px solid var(--ink);
+    border-radius:50%;
+    font-family:'Inter', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    color:var(--ink);
+    background:#fff;
+  }
+
+  .opt .text{ flex:1; padding-top:2px; }
+
+  .opt:disabled{ cursor:default; }
+
+  .opt.is-correct{
+    background:var(--amber-tint);
+    border-color:var(--amber);
+  }
+  .opt.is-correct .letter{
+    background:var(--amber);
+    border-color:var(--amber);
+    color:#fff;
+  }
+
+  .opt.is-wrong{
+    background:var(--coral-tint);
+    border-color:var(--coral);
+  }
+  .opt.is-wrong .letter{
+    background:var(--coral);
+    border-color:var(--coral);
+    color:#fff;
+  }
+
+  .opt.is-dim{ opacity:0.5; }
+
+  /* ---------- Feedback ---------- */
+  .feedback{
+    display:none;
+    margin-top:20px;
+    padding:16px 18px;
+    border-radius:2px;
+    font-size:14.5px;
+    line-height:1.6;
+  }
+  .feedback.show{ display:block; }
+  .feedback.correct{ background:var(--amber-tint); border-left:3px solid var(--amber); }
+  .feedback.wrong{ background:var(--coral-tint); border-left:3px solid var(--coral); }
+
+  .feedback .verdict{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:16px;
+    margin:0 0 6px;
+  }
+  .feedback.correct .verdict{ color:var(--amber); }
+  .feedback.wrong .verdict{ color:var(--coral); }
+
+  .feedback p{ margin:0; color:var(--ink); }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+  }
+
+  .btn{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    padding:11px 22px;
+    border-radius:2px;
+    border:1.5px solid var(--ink);
+    background:var(--ink);
+    color:#fff;
+    cursor:pointer;
+    display:none;
+  }
+  .btn.show{ display:inline-block; }
+  .btn:hover{ background:#3a4a45; }
+  .btn:focus-visible{ outline:3px solid var(--teal); outline-offset:2px; }
+
+  .btn.secondary{
+    background:#fff;
+    color:var(--ink);
+  }
+  .btn.secondary:hover:not(:disabled){ background:var(--panel); }
+  .btn.secondary:disabled{
+    opacity:0.35;
+    cursor:default;
+  }
+
+  /* ---------- Summary screen ---------- */
+  .summary{
+    display:none;
+    text-align:center;
+    padding:20px 10px 6px;
+  }
+  .summary.show{ display:block; }
+
+  .summary .big{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:52px;
+    color:var(--teal);
+    line-height:1;
+    margin:6px 0 4px;
+  }
+
+  .summary .verdict-line{
+    font-size:15px;
+    color:var(--ink-soft);
+    margin-bottom:22px;
+  }
+
+  .result-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    text-align:left;
+    padding:9px 4px;
+    border-bottom:1px solid var(--panel-line);
+    font-size:13.5px;
+  }
+  .result-row:last-child{ border-bottom:none; }
+
+  .result-row .mark{
+    width:22px; height:22px;
+    border-radius:50%;
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:12px;
+    font-weight:700;
+    font-family:'Inter',sans-serif;
+  }
+  .result-row .mark.ok{ background:var(--amber); }
+  .result-row .mark.no{ background:var(--coral); }
+
+  .result-row .rtext{ color:var(--ink-soft); flex:1; }
+
+  footer{
+    text-align:center;
+    margin-top:30px;
+    font-size:12.5px;
+    color:#B7CDE6;
+  }
+
+  @media (max-width:520px){
+    .card{ padding:22px 18px 20px; }
+    header{ flex-direction:column; align-items:flex-start; gap:6px; }
+    .score-block{ text-align:left; }
+    .prompt{ font-size:17.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="title-block">
+      <h1>Equation <em>Match</em></h1>
+      <p>Read the word problem. Pick the option that defines the variable <em>and</em> forms the matching equation.</p>
+    </div>
+    <div class="score-block">
+      <div class="num" id="scoreNum">0/8</div>
+      <div class="label">correct</div>
+    </div>
+  </header>
+
+  <div class="progress" id="progress"></div>
+
+  <div class="jump-wrap">
+    <button class="jump-toggle" id="jumpToggle">
+      <span>Jump to question</span>
+      <span class="chev" id="jumpChev">&#9662;</span>
+    </button>
+    <div class="jump-grid" id="jumpGrid"></div>
+  </div>
+
+  <div class="card" id="quizCard">
+    <div class="qmeta">
+      <span class="qnum" id="qnumLabel">Question 1 of 8</span>
+      <button class="hint-toggle" id="hintToggle">Need a hint?</button>
+    </div>
+
+    <div class="hint-box" id="hintBox"></div>
+
+    <p class="prompt" id="promptText"></p>
+
+    <div class="options" id="optionsWrap"></div>
+
+    <div class="feedback" id="feedback">
+      <p class="verdict" id="verdictText"></p>
+      <p id="explainText"></p>
+    </div>
+
+    <div class="actions">
+      <button class="btn secondary show" id="backBtn">← Previous</button>
+      <button class="btn" id="nextBtn">Next question →</button>
+    </div>
+  </div>
+
+  <div class="card summary" id="summaryCard">
+    <div style="font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); letter-spacing:0.03em;">GAME OVER</div>
+    <div class="big" id="finalScore">0/8</div>
+    <div class="verdict-line" id="finalVerdict"></div>
+    <div id="resultsList" style="max-width:440px; margin:0 auto 22px; text-align:left;"></div>
+    <button class="btn show" id="restartBtn" style="display:inline-block;">Play again</button>
+  </div>
+
+  <footer>Year 7 Algebra &middot; Forming equations from worded questions</footer>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    prompt: "Six more than three times a number is 27. Which option correctly defines the variable and forms the equation?",
+    hint: "\u201cThree times a number\u201d is 3n. \u201cSix more than\u201d that means you add 6 to it.",
+    options: [
+      "Let n be the number. 3n \u2212 6 = 27",
+      "Let n be the number. 3n + 6 = 27",
+      "Let n be the number. 3(n + 6) = 27",
+      "Let n be the number. 6n + 3 = 27"
+    ],
+    correct: 1,
+    explain: "\u201cThree times a number\u201d is 3n. \u201cSix more than\u201d that quantity means add 6: 3n + 6. This equals 27, giving 3n + 6 = 27. Watch out for common mistakes: adding 6 to n before tripling, swapping which number gets tripled, or subtracting instead of adding."
+  },
+  {
+    prompt: "A taxi charges a $4 flag-fall plus $2.20 per kilometre. A trip costs $26.80. Which option correctly defines the variable and forms the equation?",
+    hint: "The flag-fall is a flat fee added once, not multiplied by distance.",
+    options: [
+      "Let k km be the distance. 2.20(k + 4) = 26.80",
+      "Let k km be the distance. 4k + 2.20 = 26.80",
+      "Let k km be the distance. 2.20k \u2212 4 = 26.80",
+      "Let k km be the distance. 2.20k + 4 = 26.80"
+    ],
+    correct: 3,
+    explain: "The per-km rate multiplies the distance (2.20k) and the flat $4 flag-fall is added on top, giving 2.20k + 4 = 26.80. Watch out for common mistakes: multiplying distance by the flag-fall instead of the rate, adding the flag-fall inside the distance before multiplying, or subtracting the flag-fall instead of adding it."
+  },
+  {
+    prompt: "Sarah is 5 years older than twice her brother's age. Sarah is 21. Which option correctly defines the variable and forms the equation for her brother's age?",
+    hint: "\u201cTwice her brother's age\u201d is 2b. \u201c5 years older than\u201d that means add 5.",
+    options: [
+      "Let b years be the brother's age. 5b + 2 = 21",
+      "Let b years be the brother's age. b + 5 = 2(21)",
+      "Let b years be the brother's age. 2(b + 5) = 21",
+      "Let b years be the brother's age. 2b + 5 = 21"
+    ],
+    correct: 3,
+    explain: "\u201cTwice her brother's age\u201d is 2b, and Sarah's age is 5 more than that: 2b + 5. Since Sarah is 21, the equation is 2b + 5 = 21. Watch out for common mistakes: doubling (b+5) instead of just b, doubling Sarah's age instead of the brother's, or swapping the coefficient and the added amount."
+  },
+  {
+    prompt: "A rectangular garden has a perimeter of 46 m. The length is 3 m more than the width. Which option correctly defines the variable and forms the equation for the width?",
+    hint: "Perimeter = 2 \u00d7 (length + width). The length is w + 3.",
+    options: [
+      "Let w m be the width. 2w + 3 = 46",
+      "Let w m be the width. w + (w + 3) = 46",
+      "Let w m be the width. 2(w + (w + 3)) = 46",
+      "Let w m be the width. 2(w + 3) = 46"
+    ],
+    correct: 2,
+    explain: "Perimeter = 2 \u00d7 (length + width). With length = w + 3, this gives 2(w + (w+3)) = 46. Watch out for common mistakes: doubling only the width instead of the whole sum, forgetting to double the sum entirely, or doubling only the length expression while ignoring the width term."
+  },
+  {
+    prompt: "Concert tickets cost $18 each, plus a single $6 booking fee per order (not per ticket). Which option correctly defines the variable and forms the equation for the total cost, C, of an order of n tickets?",
+    hint: "The booking fee is charged once per order, not once per ticket.",
+    options: [
+      "Let n tickets be the number bought. C = 6n + 18",
+      "Let n tickets be the number bought. C = 18n \u2212 6",
+      "Let n tickets be the number bought. C = 18(n + 6)",
+      "Let n tickets be the number bought. C = 18n + 6"
+    ],
+    correct: 3,
+    explain: "Each ticket costs $18, so n tickets cost 18n, and the flat $6 fee is added once: C = 18n + 6. Watch out for common mistakes: adding the fee to the ticket count before multiplying, swapping which amount is per-ticket, or subtracting the fee instead of adding it."
+  },
+  {
+    prompt: "A number is doubled, then decreased by 9. This gives the same result as adding 15 to the number. Which option correctly defines the variable and forms the equation?",
+    hint: "\u201cDoubled\u201d applies to the number alone, not to (number \u2212 9).",
+    options: [
+      "Let x be the number. x \u2212 9 = 2x + 15",
+      "Let x be the number. 2(x \u2212 9) = x + 15",
+      "Let x be the number. 2x \u2212 9 = x + 15",
+      "Let x be the number. 2x + 9 = x + 15"
+    ],
+    correct: 2,
+    explain: "\u201cA number is doubled\u201d is 2x, then \u201cdecreased by 9\u201d gives 2x \u2212 9. This equals \u201cthe number increased by 15\u201d, which is x + 15. So 2x \u2212 9 = x + 15. Watch out for common mistakes: using + instead of \u2212 for \u201cdecreased\u201d, doubling (x \u2212 9) instead of just x, or swapping the two sides' structure."
+  },
+  {
+    prompt: "Jake earns a base wage of $120 per day, plus a $15 bonus for every item he sells. Which option correctly defines the variable and forms the equation for the number of items, i, he must sell to earn $255 in a day?",
+    hint: "The bonus is per item sold, so it's multiplied by i \u2014 the base wage is a flat amount.",
+    options: [
+      "Let i items be the number sold. 120i + 15 = 255",
+      "Let i items be the number sold. 120 \u2212 15i = 255",
+      "Let i items be the number sold. 15 + 120i = 255",
+      "Let i items be the number sold. 120 + 15i = 255"
+    ],
+    correct: 3,
+    explain: "The base wage ($120) is fixed, and the bonus ($15) is earned per item, so the bonus term is 15i: 120 + 15i = 255. Watch out for common mistakes: multiplying the wrong amount by i, or subtracting the bonus instead of adding it."
+  },
+  {
+    prompt: "The sum of three consecutive integers is 72. Which option correctly defines the variable and forms the equation for the smallest integer?",
+    hint: "Consecutive integers go up by 1 each time, e.g. n, n+1, n+2.",
+    options: [
+      "Let n be the smallest integer. 3(n + 1) = 72",
+      "Let n be the smallest integer. n + (n + 2) + (n + 4) = 72",
+      "Let n be the smallest integer. 3n + 1 = 72",
+      "Let n be the smallest integer. n + (n + 1) + (n + 2) = 72"
+    ],
+    correct: 3,
+    explain: "Consecutive integers increase by 1 each time: n, n+1, n+2. Their sum is n + (n+1) + (n+2) = 72. Watch out for common mistakes: using steps of 2 (that would be consecutive even/odd integers), or using a shortcut form that doesn't come directly from the wording."
+  },
+  {
+    prompt: "A plumber charges a $50 call-out fee plus $35 per hour worked. A job costs $190 in total. Which option correctly defines the variable and forms the equation?",
+    hint: "The call-out fee is a flat amount added once, not multiplied by the hours.",
+    options: [
+      "Let h hours be the time worked. 35(h + 50) = 190",
+      "Let h hours be the time worked. 50h + 35 = 190",
+      "Let h hours be the time worked. 35h + 50 = 190",
+      "Let h hours be the time worked. 35h \u2212 50 = 190"
+    ],
+    correct: 2,
+    explain: "The hourly rate multiplies the hours worked (35h), and the flat $50 call-out fee is added once: 35h + 50 = 190. Watch out for common mistakes: multiplying hours by the wrong amount, adding the fee inside the hours before multiplying, or subtracting the fee instead of adding it."
+  },
+  {
+    prompt: "The sum of a number and 12 equals three times the number. Which option correctly defines the variable and forms the equation?",
+    hint: "\u201cThe sum of a number and 12\u201d is n + 12. \u201cThree times the number\u201d is 3n.",
+    options: [
+      "Let n be the number. n + 12 = 3n",
+      "Let n be the number. n \u2212 12 = 3n",
+      "Let n be the number. n + 12 = 3 + n",
+      "Let n be the number. 3n + 12 = n"
+    ],
+    correct: 0,
+    explain: "\u201cThe sum of a number and 12\u201d is n + 12, and this equals \u201cthree times the number\u201d, which is 3n: n + 12 = 3n. Watch out for common mistakes: putting the 12 on the wrong side, replacing \u201cthree times\u201d with \u201cplus three\u201d, or subtracting instead of adding."
+  },
+  {
+    prompt: "Liam is 4 years younger than his sister. The sum of their ages is 30. Which option correctly defines the variable and forms the equation for Liam's age?",
+    hint: "If Liam is 4 years younger, his sister's age is Liam's age plus 4.",
+    options: [
+      "Let l years be Liam's age. l + (l \u2212 4) = 30",
+      "Let l years be Liam's age. l + (l + 4) = 30",
+      "Let l years be Liam's age. l \u00d7 (l + 4) = 30",
+      "Let l years be Liam's age. 4l + 1 = 30"
+    ],
+    correct: 1,
+    explain: "Liam is 4 years younger than his sister, so his sister's age is l + 4. Their ages sum to 30: l + (l + 4) = 30. Watch out for common mistakes: making Liam older than his sister instead of younger, writing an equation that isn't built from the wording at all, or multiplying the ages instead of adding them."
+  },
+  {
+    prompt: "A jacket's price after a $15 discount is $64. Which option correctly defines the variable and forms the equation for the original price, p?",
+    hint: "The discount is subtracted from the original price to get the sale price.",
+    options: [
+      "Let p dollars be the original price. p + 15 = 64",
+      "Let p dollars be the original price. p \u2212 15 = 64",
+      "Let p dollars be the original price. 15p = 64",
+      "Let p dollars be the original price. 15 \u2212 p = 64"
+    ],
+    correct: 1,
+    explain: "The discount is taken off the original price to leave the sale price: p \u2212 15 = 64. Watch out for common mistakes: adding the discount instead of subtracting it, swapping which term is subtracted from which, or multiplying instead of subtracting."
+  },
+  {
+    prompt: "Four times a number, increased by 7, equals 39. Find the number.",
+    hint: "\u201cFour times a number\u201d is 4n. \u201cIncreased by 7\u201d means add 7 to that.",
+    options: [
+      "Let n be the number. 4n + 7 = 39, so n = 8",
+      "Let n be the number. 4n + 7 = 39, so n = 9",
+      "Let n be the number. 4(n + 7) = 39, so n = 2.75",
+      "Let n be the number. 4n \u2212 7 = 39, so n = 11.5"
+    ],
+    correct: 0,
+    explain: "\u201cFour times a number\u201d is 4n, and \u201cincreased by 7\u201d adds 7: 4n + 7 = 39, giving 4n = 32 and n = 8. Check each option's own working carefully \u2014 only one option both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A school hall hires for a flat $80 fee plus $25 per hour. The total cost was $255. Find the number of hours, h.",
+    hint: "The flat fee is added once; the hourly rate is multiplied by the hours.",
+    options: [
+      "Let h hours be the length of the hire. 25h + 80 = 255, so h = 7",
+      "Let h hours be the length of the hire. 25h + 80 = 255, so h = 10.2",
+      "Let h hours be the length of the hire. 25(h + 80) = 255, so h = \u221269.8",
+      "Let h hours be the length of the hire. 80h + 25 = 255, so h = 2.875"
+    ],
+    correct: 0,
+    explain: "The hourly rate multiplies the hours (25h), and the flat $80 fee is added once: 25h + 80 = 255, giving 25h = 175 and h = 7. The other options mistranslate which amount is fixed and which is per hour. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Twice the sum of a number and 9 is 46. Find the number.",
+    hint: "\u201cThe sum of a number and 9\u201d is (n + 9). \u201cTwice\u201d that means multiply the whole sum by 2.",
+    options: [
+      "Let n be the number. 2(n + 9) = 46, so n = 23",
+      "Let n be the number. 2(n + 9) = 46, so n = 14",
+      "Let n be the number. 2n + 9 = 46, so n = 18.5",
+      "Let n be the number. 2n \u2212 9 = 46, so n = 27.5"
+    ],
+    correct: 1,
+    explain: "\u201cThe sum of a number and 9\u201d is (n + 9), and \u201ctwice\u201d that whole sum is 2(n + 9) = 46, giving n + 9 = 23 and n = 14. Watch out for common mistakes: doubling only the n term instead of the whole sum, or doubling only the 9 instead of the whole sum. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Three times a number is 8 more than twice the number. Find the number.",
+    hint: "\u201cThree times the number\u201d is 3n. \u201c8 more than twice the number\u201d is 2n + 8.",
+    options: [
+      "Let n be the number. 3n = 2n + 8, so n = 24",
+      "Let n be the number. 3n + 8 = 2n, so n = \u22128",
+      "Let n be the number. 3n = 2n + 8, so n = 8",
+      "Let n be the number. 3(n + 8) = 2n, so n = \u221224"
+    ],
+    correct: 2,
+    explain: "\u201cThree times the number\u201d is 3n, and \u201c8 more than twice the number\u201d is 2n + 8, giving 3n = 2n + 8, so n = 8. Watch out for common mistakes: adding the 8 on the wrong side, or mistranslating where the brackets and multiplication apply. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A hiker has already walked 6 km. She then walks at 4 km/h for h more hours, covering a total of 26 km. Find h.",
+    hint: "The distance already walked is fixed; the extra distance is 4 km for every hour of extra walking.",
+    options: [
+      "Let h hours be the extra time walked. 6 + 4h = 26, so h = 8",
+      "Let h hours be the extra time walked. 6 + 4h = 26, so h = 5",
+      "Let h hours be the extra time walked. 4(h + 6) = 26, so h = 0.5",
+      "Let h hours be the extra time walked. 6h \u2212 4 = 26, so h = 5"
+    ],
+    correct: 1,
+    explain: "The 6 km already walked is fixed, and 4 km/h is multiplied by the extra hours: 6 + 4h = 26, so h = 5. Watch out for the option that lands on the same final answer (h = 5) purely by coincidence \u2014 its equation doesn't match the wording at all, so it's still wrong even though the number looks right. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A store sells notebooks for $3 each. A customer buys some notebooks and a $9 pencil case, spending $30 in total. Find the number of notebooks bought, n.",
+    hint: "The pencil case is a one-off cost; the notebook cost depends on how many are bought.",
+    options: [
+      "Let n notebooks be the number bought. 3n + 9 = 30, so n = 7",
+      "Let n notebooks be the number bought. 3n + 9 = 30, so n = 6",
+      "Let n notebooks be the number bought. 3n \u2212 9 = 30, so n = 13",
+      "Let n notebooks be the number bought. 3(n + 9) = 30, so n = 1"
+    ],
+    correct: 0,
+    explain: "Each notebook costs $3, so n notebooks cost 3n, and the $9 pencil case is added once: 3n + 9 = 30, giving n = 7. The other options swap which price is per-item or mishandle the pencil case's cost. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Twice a number, plus the number itself, equals 60 decreased by the number. Find the number.",
+    hint: "\u201cTwice a number, plus the number itself\u201d simplifies to 3n \u2014 but write it as it's described first.",
+    options: [
+      "Let n be the number. 2n + n = 60 \u2212 n, so n = 15",
+      "Let n be the number. 2n + n = 60 \u2212 n, so n = 20",
+      "Let n be the number. 2n + n = 60 + n, so n = 30",
+      "Let n be the number. n + 2n = n \u2212 60, so n = \u221230"
+    ],
+    correct: 0,
+    explain: "\u201cTwice a number, plus the number itself\u201d is 2n + n, and this equals \u201c60 decreased by the number\u201d, which is 60 \u2212 n: 2n + n = 60 \u2212 n, giving 3n = 60 \u2212 n, 4n = 60, so n = 15. The other options change the sign or grouping of the terms. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A rope is cut into two pieces so that one piece is 3 times as long as the other. Together the two pieces measure 96 cm. Find the length of the shorter piece, s.",
+    hint: "If the shorter piece is s, the longer piece is 3s. The two pieces add up to the total length.",
+    options: [
+      "Let s cm be the length of the shorter piece. s + 3s = 96, so s = 32",
+      "Let s cm be the length of the shorter piece. s \u2212 3s = 96, so s = \u221248",
+      "Let s cm be the length of the shorter piece. s + 3s = 96, so s = 24",
+      "Let s cm be the length of the shorter piece. 3s \u2212 s = 96, so s = 48"
+    ],
+    correct: 2,
+    explain: "The shorter piece is s and the longer piece is 3s; together they make the full rope: s + 3s = 96, giving 4s = 96, so s = 24. The other options misrepresent how the two pieces combine to form the total length. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "The temperature dropped by 15°C from its starting value, reaching −6°C. Which option correctly defines the variable and forms the equation for the starting temperature?",
+    hint: "Set up t for the starting temperature, then subtract the drop.",
+    options: [
+      "Let t °C be the starting temperature. t − 15 = −6, so t = −6",
+      "Let t °C be the starting temperature. 15 − t = −6, so t = 21",
+      "Let t °C be the starting temperature. t − 15 = −6, so t = 9",
+      "Let t °C be the starting temperature. −t − 15 = −6, so t = −9"
+    ],
+    correct: 2,
+    explain: "The drop is subtracted from the starting temperature to reach the final one: t − 15 = −6, giving t = 9°C. Watch out for common mistakes: adding the drop instead of subtracting it, reversing which term is subtracted from which, or flipping the sign of t itself. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Maya's bank balance was −$45 (overdrawn). After she deposited some money, her balance became $80. Which option correctly defines the variable and forms the equation for the amount deposited?",
+    hint: "Overdrawn means the balance starts negative.",
+    options: [
+      "Let d dollars be the amount deposited. −45 + d = 80, so d = 125",
+      "Let d dollars be the amount deposited. −45 + d = 80, so d = 63",
+      "Let d dollars be the amount deposited. d − 45 = −80, so d = −35",
+      "Let d dollars be the amount deposited. −45 − d = 80, so d = −125"
+    ],
+    correct: 0,
+    explain: "The starting balance is −$45, and the deposit is added to reach $80: −45 + d = 80, giving d = 125. Watch out for common mistakes: treating the overdrawn balance as positive, misplacing the negative sign on the target amount, or subtracting the deposit instead of adding it. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A submarine is at a depth of 120 m below sea level. It rises by m metres to reach a depth of 45 m below sea level. Which option correctly defines the variable and forms the equation?",
+    hint: "Depths below sea level are written as negative numbers.",
+    options: [
+      "Let m metres be the amount risen. −120 + m = −45, so m = 45",
+      "Let m metres be the amount risen. 120 + m = −45, so m = −165",
+      "Let m metres be the amount risen. m − 120 = 45, so m = 165",
+      "Let m metres be the amount risen. −120 + m = −45, so m = 75"
+    ],
+    correct: 3,
+    explain: "Depths below sea level are negative, so the starting depth is −120 and the target depth is −45: −120 + m = −45, giving m = 75. Watch out for common mistakes: subtracting the rise instead of adding it, forgetting the starting depth is negative, or mixing up the sign of the target depth. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "One third of a number, plus 4, equals 15. Which option correctly defines the variable and forms the equation?",
+    hint: "One third of a number is n ÷ 3, written n/3.",
+    options: [
+      "Let n be the number. n/3 + 4 = 15, so n = 11",
+      "Let n be the number. n/3 + 4 = 15, so n = 33",
+      "Let n be the number. (n + 4)/3 = 15, so n = 41",
+      "Let n be the number. n/3 − 4 = 15, so n = 57"
+    ],
+    correct: 1,
+    explain: "“One third of a number” is n/3, and “plus 4” adds 4: n/3 + 4 = 15, giving n = 33. Watch out for common mistakes: tripling the number instead of taking a third of it, adding the 4 inside the fraction before dividing, or subtracting instead of adding. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Half of a number, decreased by 7, is 3. Which option correctly defines the variable and forms the equation?",
+    hint: "Half of a number is n ÷ 2, written n/2.",
+    options: [
+      "Let n be the number. n/2 + 7 = 3, so n = −8",
+      "Let n be the number. n/2 − 7 = 3, so n = 10",
+      "Let n be the number. 7 − n/2 = 3, so n = 8",
+      "Let n be the number. n/2 − 7 = 3, so n = 20"
+    ],
+    correct: 3,
+    explain: "“Half of a number” is n/2, and “decreased by 7” subtracts 7: n/2 − 7 = 3, giving n = 20. Watch out for common mistakes: adding 7 instead of subtracting it, subtracting 7 before halving, or reversing which term is subtracted from which. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A recipe needs ¾ cup of sugar per batch. Baking b batches uses 6 cups of sugar in total. Which option correctly defines the variable and forms the equation?",
+    hint: "¾ cup per batch means the sugar used is ¾ multiplied by the number of batches.",
+    options: [
+      "Let b batches be the number baked. ¾ + b = 6, so b = 5.25",
+      "Let b batches be the number baked. ¾b = 6, so b = 9",
+      "Let b batches be the number baked. ¾b = 6, so b = 8",
+      "Let b batches be the number baked. ¾(b + 1) = 6, so b = 7"
+    ],
+    correct: 2,
+    explain: "Each batch uses ¾ cup, so b batches use ¾b cups: ¾b = 6, giving b = 8. Watch out for common mistakes: adding the fraction instead of multiplying, dividing by the fraction instead of multiplying, or adding an extra batch inside the brackets. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Two fifths of the students in a class are boys. There are 12 boys. Which option correctly defines the variable and forms the equation for the total number of students?",
+    hint: "⅖ of the total is the boys' share — set that equal to 12.",
+    options: [
+      "Let s students be the total number. ⅖s = 12, so s = 30",
+      "Let s students be the total number. s ÷ ⅖ = 12, so s = 4.8",
+      "Let s students be the total number. ⅖ + s = 12, so s = 11.6",
+      "Let s students be the total number. ⅖s = 12, so s = 20"
+    ],
+    correct: 0,
+    explain: "“Two fifths of the students” is ⅖s, and this equals 12: ⅖s = 12, giving s = 30. Watch out for common mistakes: dividing by the fraction instead of multiplying, adding the fraction instead of multiplying, or flipping the fraction upside down. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A chemical reaction starts at 4°C and cools by c degrees per minute for 6 minutes, ending at −11°C. Which option correctly defines the variable and forms the equation?",
+    hint: "The temperature drops by c degrees every minute, for 6 minutes total.",
+    options: [
+      "Let c °C be the cooling rate per minute. 4 − 6c = −11, so c = −1.25",
+      "Let c °C be the cooling rate per minute. 4 − 6c = −11, so c = 2.5",
+      "Let c °C be the cooling rate per minute. 4 − c = −11, so c = 15",
+      "Let c °C be the cooling rate per minute. 6(4 − c) = −11, so c = 5.83"
+    ],
+    correct: 1,
+    explain: "The temperature falls by c degrees each of the 6 minutes, so 6c is subtracted from the start: 4 − 6c = −11, giving c = 2.5. Watch out for common mistakes: adding the cooling instead of subtracting it, forgetting to multiply the rate by the 6 minutes, or multiplying the whole expression by 6 instead of just the rate. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A vending machine's cash box had a shortage recorded as −$18 (a deficit). After the day's sales of $x, the box shows a surplus of $27. Which option correctly defines the variable and forms the equation?",
+    hint: "A shortage is a negative starting amount.",
+    options: [
+      "Let x dollars be the day's sales. 18 + x = 27, so x = 9",
+      "Let x dollars be the day's sales. −18 + x = 27, so x = 63",
+      "Let x dollars be the day's sales. −18 − x = 27, so x = −45",
+      "Let x dollars be the day's sales. −18 + x = 27, so x = 45"
+    ],
+    correct: 3,
+    explain: "The starting shortage is −$18, and the day's sales are added to reach a surplus of $27: −18 + x = 27, giving x = 45. Watch out for common mistakes: treating the shortage as a positive amount, misplacing the negative sign on the target, or subtracting the sales instead of adding them. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A store offers ⅓ off the original price, p. The sale price is $58. Which option correctly defines the variable and forms the equation?",
+    hint: "Taking ⅓ off leaves the price minus one third of itself.",
+    options: [
+      "Let p dollars be the original price. p − p/3 = 58, so p = 87",
+      "Let p dollars be the original price. p/3 = 58, so p = 174",
+      "Let p dollars be the original price. p + p/3 = 58, so p = 43.5",
+      "Let p dollars be the original price. p − p/3 = 58, so p = 58"
+    ],
+    correct: 0,
+    explain: "Taking ⅓ off the price leaves the price minus a third of itself: p − p/3 = 58, giving p = 87. Watch out for common mistakes: setting up the discount alone instead of the price after the discount, adding the discount instead of subtracting it, or using the wrong multiple of p. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A hiker's elevation changes by e metres per hour (e can be negative for descending). Starting at 1500 m, after 4 hours of steady change the hiker is at 1180 m. Which option correctly defines the variable and forms the equation?",
+    hint: "The elevation changes by e metres for each of the 4 hours.",
+    options: [
+      "Let e m be the elevation change per hour. 1500 − 4e = 1180, so e = 80",
+      "Let e m be the elevation change per hour. 1500 + 4e = 1180, so e = −40",
+      "Let e m be the elevation change per hour. 1500 + 4e = 1180, so e = −80",
+      "Let e m be the elevation change per hour. 1500 + e = 1180, so e = −320"
+    ],
+    correct: 2,
+    explain: "The elevation changes by e metres every hour, for 4 hours: 1500 + 4e = 1180, giving e = −80. Watch out for common mistakes: subtracting the change instead of adding it, multiplying the starting elevation by 4 as well, or forgetting to multiply the rate by the number of hours. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A water tank holds 80 litres when full and is currently ⅝ full, containing 50 litres. After removing w litres, it becomes half full (40 litres). Which option correctly defines the variable and forms the equation for w?",
+    hint: "Removing litres from the tank makes the total go down.",
+    options: [
+      "Let w litres be the amount removed. 50 + w = 40, so w = −10",
+      "Let w litres be the amount removed. 50 − w = 40, so w = 10",
+      "Let w litres be the amount removed. w − 50 = 40, so w = 90",
+      "Let w litres be the amount removed. 50 − w = 40, so w = 40"
+    ],
+    correct: 1,
+    explain: "The tank starts with 50 litres, and removing w litres brings it down to 40 litres: 50 − w = 40, giving w = 10. Watch out for common mistakes: adding the removed amount instead of subtracting it, reversing which term is subtracted from which, or starting from the full 80 litres instead of the current 50. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Five minus twice a number equals 17. Find the number.",
+    hint: "“Five minus twice a number” is 5 − 2n, not 2n − 5.",
+    options: [
+      "Let n be the number. 5 − 2n = 17, so n = −6",
+      "Let n be the number. 2n − 5 = 17, so n = 11",
+      "Let n be the number. 5 − 2n = 17, so n = 6",
+      "Let n be the number. 2(5 − n) = 17, so n = −3.5"
+    ],
+    correct: 0,
+    explain: "“Five minus twice a number” is 5 − 2n, and this equals 17: 5 − 2n = 17, giving −2n = 12 and n = −6. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A number divided by 4, then increased by 9, equals 2. Find the number.",
+    hint: "“Divided by 4” means the number is over 4, i.e. n/4.",
+    options: [
+      "Let n be the number. n/4 − 9 = 2, so n = 44",
+      "Let n be the number. n/4 + 9 = 2, so n = −7",
+      "Let n be the number. (n + 9)/4 = 2, so n = −1",
+      "Let n be the number. n/4 + 9 = 2, so n = −28"
+    ],
+    correct: 3,
+    explain: "“A number divided by 4” is n/4, then “increased by 9” adds 9: n/4 + 9 = 2, giving n/4 = −7 and n = −28. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Three quarters of a number is 6 less than the number itself. Find the number.",
+    hint: "“6 less than the number itself” is n − 6, on the side of the number, not the fraction.",
+    options: [
+      "Let n be the number. ¾n = n − 6, so n = −24",
+      "Let n be the number. ¾n = n − 6, so n = 24",
+      "Let n be the number. 4n = 3n − 6, so n = −6",
+      "Let n be the number. ¾(n − 6) = n, so n = −18"
+    ],
+    correct: 1,
+    explain: "“Three quarters of a number” is ¾n, and this equals “6 less than the number itself”, which is n − 6: ¾n = n − 6, giving n = 24. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A submarine descends at 45 m per minute from the surface. After t minutes it reaches −315 m. Find t.",
+    hint: "Starting depth is 0; each minute adds −45 m.",
+    options: [
+      "Let t minutes be the time. 45t = −315, so t = −7",
+      "Let t minutes be the time. −45t = −315, so t = 70",
+      "Let t minutes be the time. −45t = −315, so t = 7",
+      "Let t minutes be the time. −45t = 315, so t = −7"
+    ],
+    correct: 2,
+    explain: "Descending means the depth decreases by 45 m every minute: −45t = −315, giving t = 7. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "Twice a number decreased by 3 equals half the number increased by 9. Find the number.",
+    hint: "Set up both sides fully before solving — fractions and whole terms on each side.",
+    options: [
+      "Let n be the number. 2n − 3 = n/2 + 9, so n = 5",
+      "Let n be the number. 2n − 3 = n/2 − 9, so n = −4",
+      "Let n be the number. n/2 − 3 = 2n + 9, so n = −8",
+      "Let n be the number. 2n − 3 = n/2 + 9, so n = 8"
+    ],
+    correct: 3,
+    explain: "“Twice a number decreased by 3” is 2n − 3, and “half the number increased by 9” is n/2 + 9: 2n − 3 = n/2 + 9, giving n = 8. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "A café's profit was −$120 (a loss) in January. Profit increased by the same amount, $p, each month for 3 months, reaching $270 in April. Find p.",
+    hint: "The café starts in negative territory (a loss), then gains p dollars for 3 months.",
+    options: [
+      "Let p dollars be the monthly increase. −120 + 3p = 270, so p = 130",
+      "Let p dollars be the monthly increase. −120 + p = 270, so p = 390",
+      "Let p dollars be the monthly increase. −120 + 3p = 270, so p = 150",
+      "Let p dollars be the monthly increase. −120 − 3p = 270, so p = −130"
+    ],
+    correct: 0,
+    explain: "The starting loss is −$120, and the profit increases by p dollars for 3 months: −120 + 3p = 270, giving p = 130. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "One quarter of a number, minus 3, equals negative 8. Find the number.",
+    hint: "“Negative 8” means the equation equals −8, not 8.",
+    options: [
+      "Let n be the number. n/4 + 3 = −8, so n = −44",
+      "Let n be the number. n/4 − 3 = −8, so n = −5",
+      "Let n be the number. n/4 − 3 = −8, so n = −20",
+      "Let n be the number. (n − 3)/4 = −8, so n = −29"
+    ],
+    correct: 2,
+    explain: "“One quarter of a number” is n/4, and “minus 3” subtracts 3: n/4 − 3 = −8, giving n/4 = −5 and n = −20. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  },
+  {
+    prompt: "The sum of a number and its half equals −18. Find the number.",
+    hint: "“A number and its half” means adding n and n/2 together.",
+    options: [
+      "Let n be the number. n + n/2 = −18, so n = −9",
+      "Let n be the number. n + n/2 = −18, so n = −12",
+      "Let n be the number. 2(n + n/2) = −18, so n = −6",
+      "Let n be the number. n/2 − n = −18, so n = 36"
+    ],
+    correct: 1,
+    explain: "“A number and its half” is n + n/2, and this equals −18: n + n/2 = −18, giving 1.5n = −18 and n = −12. Check each option's own working — only one both translates the wording correctly and solves it correctly. One option even uses the correct equation but reaches the wrong final answer, so always double-check your own arithmetic too."
+  }
+];
+
+let current = 0;
+let score = 0;
+let userAnswers = new Array(QUESTIONS.length).fill(null); // selected option index, or null if unanswered
+let results = new Array(QUESTIONS.length).fill(null); // true/false/null
+
+const progressEl = document.getElementById('progress');
+const scoreNumEl = document.getElementById('scoreNum');
+const qnumLabel = document.getElementById('qnumLabel');
+const promptText = document.getElementById('promptText');
+const optionsWrap = document.getElementById('optionsWrap');
+const feedback = document.getElementById('feedback');
+const verdictText = document.getElementById('verdictText');
+const explainText = document.getElementById('explainText');
+const nextBtn = document.getElementById('nextBtn');
+const backBtn = document.getElementById('backBtn');
+const hintToggle = document.getElementById('hintToggle');
+const hintBox = document.getElementById('hintBox');
+const quizCard = document.getElementById('quizCard');
+const summaryCard = document.getElementById('summaryCard');
+const jumpToggle = document.getElementById('jumpToggle');
+const jumpChev = document.getElementById('jumpChev');
+const jumpGrid = document.getElementById('jumpGrid');
+
+function buildProgress(){
+  progressEl.innerHTML = '';
+  QUESTIONS.forEach((_, i) => {
+    const step = document.createElement('div');
+    step.className = 'step';
+    step.id = 'step-' + i;
+    progressEl.appendChild(step);
+  });
+}
+
+function updateProgressStep(i, state){
+  const el = document.getElementById('step-' + i);
+  if(!el) return;
+  el.classList.remove('current','correct','wrong');
+  if(state) el.classList.add(state);
+}
+
+function buildJumpGrid(){
+  jumpGrid.innerHTML = '';
+  QUESTIONS.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'jump-num';
+    btn.id = 'jump-' + i;
+    btn.textContent = (i + 1);
+    btn.addEventListener('click', () => {
+      current = i;
+      renderQuestion();
+      jumpGrid.classList.remove('show');
+      jumpToggle.classList.remove('open');
+    });
+    jumpGrid.appendChild(btn);
+  });
+}
+
+function updateJumpGrid(){
+  QUESTIONS.forEach((_, i) => {
+    const el = document.getElementById('jump-' + i);
+    if(!el) return;
+    el.classList.remove('jc','jw','jcur');
+    if(results[i] === true) el.classList.add('jc');
+    else if(results[i] === false) el.classList.add('jw');
+    if(i === current) el.classList.add('jcur');
+  });
+}
+
+jumpToggle.addEventListener('click', () => {
+  jumpGrid.classList.toggle('show');
+  jumpToggle.classList.toggle('open');
+});
+
+function letterFor(i){ return String.fromCharCode(65 + i); }
+
+function renderQuestion(){
+  const q = QUESTIONS[current];
+  qnumLabel.textContent = 'Question ' + (current + 1) + ' of ' + QUESTIONS.length;
+  promptText.textContent = q.prompt;
+  hintBox.textContent = q.hint;
+  hintBox.classList.remove('show');
+  hintToggle.textContent = 'Need a hint?';
+  feedback.classList.remove('show','correct','wrong');
+  nextBtn.classList.remove('show');
+
+  backBtn.disabled = (current === 0);
+
+  optionsWrap.innerHTML = '';
+  q.options.forEach((optText, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = '<span class="letter">' + letterFor(i) + '</span><span class="text"></span>';
+    btn.querySelector('.text').textContent = optText;
+    btn.addEventListener('click', () => selectOption(i));
+    optionsWrap.appendChild(btn);
+  });
+
+  const priorAnswer = userAnswers[current];
+  if(priorAnswer !== null){
+    // question already answered — restore its state instead of a blank slate
+    showAnsweredState(priorAnswer, false);
+  } else {
+    updateProgressStep(current, 'current');
+  }
+  updateJumpGrid();
+}
+
+function showAnsweredState(selectedIdx, isNewAnswer){
+  const q = QUESTIONS[current];
+  const isCorrect = (selectedIdx === q.correct);
+  const optButtons = optionsWrap.querySelectorAll('.opt');
+
+  optButtons.forEach((btn, idx) => {
+    btn.disabled = true;
+    btn.classList.remove('is-correct','is-wrong','is-dim');
+    if(idx === q.correct){ btn.classList.add('is-correct'); }
+    else if(idx === selectedIdx){ btn.classList.add('is-wrong'); }
+    else { btn.classList.add('is-dim'); }
+  });
+
+  feedback.classList.add('show');
+  feedback.classList.add(isCorrect ? 'correct' : 'wrong');
+  verdictText.textContent = isCorrect ? 'Correct!' : 'Not quite.';
+  explainText.textContent = q.explain;
+
+  updateProgressStep(current, isCorrect ? 'correct' : 'wrong');
+  updateJumpGrid();
+
+  nextBtn.classList.add('show');
+  nextBtn.textContent = (current === QUESTIONS.length - 1) ? 'See results →' : 'Next question →';
+}
+
+function selectOption(i){
+  if(userAnswers[current] !== null) return; // already answered, no re-answering
+  const q = QUESTIONS[current];
+  const isCorrect = (i === q.correct);
+
+  userAnswers[current] = i;
+  results[current] = isCorrect;
+  if(isCorrect) score++;
+  scoreNumEl.textContent = score + '/' + QUESTIONS.length;
+
+  showAnsweredState(i, true);
+}
+
+hintToggle.addEventListener('click', () => {
+  hintBox.classList.toggle('show');
+  hintToggle.textContent = hintBox.classList.contains('show') ? 'Hide hint' : 'Need a hint?';
+});
+
+backBtn.addEventListener('click', () => {
+  if(current > 0){
+    current--;
+    renderQuestion();
+  }
+});
+
+nextBtn.addEventListener('click', () => {
+  if(current < QUESTIONS.length - 1){
+    current++;
+    renderQuestion();
+  } else {
+    showSummary();
+  }
+});
+
+function showSummary(){
+  quizCard.style.display = 'none';
+  summaryCard.classList.add('show');
+  document.getElementById('finalScore').textContent = score + '/' + QUESTIONS.length;
+
+  let verdict;
+  const pct = score / QUESTIONS.length;
+  if(pct === 1) verdict = "Perfect score \u2014 every equation nailed.";
+  else if(pct >= 0.75) verdict = "Strong work \u2014 you're reading these translations closely.";
+  else if(pct >= 0.5) verdict = "Solid start \u2014 revisit the ones you missed.";
+  else verdict = "Worth another pass \u2014 focus on what each phrase adds to the equation.";
+  document.getElementById('finalVerdict').textContent = verdict;
+
+  const list = document.getElementById('resultsList');
+  list.innerHTML = '';
+  results.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML =
+      '<span class="mark ' + (r ? 'ok' : 'no') + '">' + (r ? '\u2713' : '\u2717') + '</span>' +
+      '<span class="rtext">Question ' + (i+1) + ' — ' + (r ? 'Correct' : 'Incorrect') + '</span>';
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  current = 0; score = 0;
+  results = new Array(QUESTIONS.length).fill(null);
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  scoreNumEl.textContent = '0/' + QUESTIONS.length;
+  summaryCard.classList.remove('show');
+  quizCard.style.display = '';
+  buildProgress();
+  buildJumpGrid();
+  renderQuestion();
+});
+
+buildProgress();
+buildJumpGrid();
+scoreNumEl.textContent = '0/' + QUESTIONS.length;
+renderQuestion();
+</script>
+
+</body>
+</html>
