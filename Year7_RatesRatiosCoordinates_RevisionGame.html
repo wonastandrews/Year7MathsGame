@@ -1,0 +1,219 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Year 7 Rates, Ratios and Coordinates Revision Game</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Layout: scoreboard strip on top, a 5-column board (one column per skill, points rising down), question opens as a full-screen sheet for projection. */
+:root{
+  --bg:#eef2ed; --surface:#ffffff; --ink:#13241d; --muted:#56675f; --line:#cfd9d2;
+  --accent:#0e6a4e; --on-accent:#ffffff; --accent-soft:#d9ece4;
+  --sol:#1546b0; --pts:#c0271d; --gold:#b9820b;
+  --display:"Bricolage Grotesque","Trebuchet MS",sans-serif;
+  --body:"Atkinson Hyperlegible",Calibri,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1513; --surface:#18221e; --ink:#e9f0eb; --muted:#9bada4; --line:#2c3a34;
+  --accent:#35b88a; --on-accent:#05241a; --accent-soft:#1d3a30;
+  --sol:#8fb6ff; --pts:#ff8d7d; --gold:#e6b84a; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0e1513; --surface:#18221e; --ink:#e9f0eb; --muted:#9bada4; --line:#2c3a34;
+  --accent:#35b88a; --on-accent:#05241a; --accent-soft:#1d3a30;
+  --sol:#8fb6ff; --pts:#ff8d7d; --gold:#e6b84a; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;padding-inline:16px;padding-block:16px 40px}
+.wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(1.4rem,3vw,2.1rem);line-height:1.1;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.btn{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:700}
+.btn:hover:not(:disabled){border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.warn{border-color:var(--pts);color:var(--pts)}
+.scores{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.team{background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.team.lead{border-color:var(--gold)}
+.team .nm{font-weight:700;color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.team input{width:100%;font:inherit;font-weight:700;padding:2px 4px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)}
+.team .sc{font-family:var(--display);font-weight:800;font-size:1.7rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.adj{display:flex;gap:6px}
+.adj button{flex:1;border:1.5px solid var(--line);background:var(--bg);border-radius:6px;padding:2px 0;font-weight:700}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.col h2{font-family:var(--display);font-weight:600;font-size:clamp(.7rem,1.5vw,1.05rem);margin:0;min-height:2.6em;display:flex;align-items:flex-end;line-height:1.15;overflow-wrap:anywhere}
+.tile{position:relative;border:0;border-radius:8px;background:var(--accent);color:var(--on-accent);font-family:var(--display);font-weight:800;font-size:clamp(1rem,2.6vw,1.7rem);padding:clamp(8px,1.4vw,14px) 0;font-variant-numeric:tabular-nums}
+.tile small{position:absolute;top:3px;left:6px;font-family:var(--body);font-weight:400;font-size:.65rem;opacity:.8}
+.tile:hover{filter:brightness(1.1)}
+.tile.used{background:var(--accent-soft);color:var(--muted);text-decoration:line-through}
+.sheet{position:fixed;inset:0;background:var(--bg);overflow:auto;z-index:10;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(32px + env(safe-area-inset-bottom,0px))}
+.sheet .in{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.meta{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between}
+.meta .tag{font-weight:700;color:var(--muted)}
+.meta .pv{font-family:var(--display);font-weight:800;color:var(--pts);font-size:1.5rem}
+.qtext{font-size:clamp(1.5rem,3.6vw,2.7rem);line-height:1.3;margin:0;text-wrap:pretty;overflow-wrap:anywhere}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.pick button{border:2px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 8px;font-weight:700;font-size:1.05rem;overflow-wrap:anywhere}
+.pick button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.pick button:disabled{cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.note{color:var(--muted);margin:0}
+.solution{background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:18px 20px;color:var(--sol);font-size:clamp(1.15rem,2.4vw,1.7rem);display:flex;flex-direction:column;gap:10px;overflow-x:auto}
+.solution .ans{font-weight:700;border-bottom:1.5px solid var(--line);padding-bottom:10px}
+.solution .err{color:var(--muted);font-style:italic;font-size:.8em;border-top:1.5px solid var(--line);padding-top:10px}
+.rank{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.rank li{display:flex;gap:16px;align-items:baseline;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:12px 18px;font-size:clamp(1.2rem,3vw,2rem)}
+.rank li.first{border-color:var(--gold)}
+.rank .pos{font-family:var(--display);font-weight:800;color:var(--gold);min-width:2ch}
+.rank .who{flex:1;min-width:0;overflow-wrap:anywhere;font-weight:700}
+.rank .tot{font-family:var(--display);font-weight:800;font-variant-numeric:tabular-nums}
+math{font-size:1.05em}
+.setup{padding-top:12vh}
+.setup form{gap:16px}
+.setup label{flex-basis:100%}
+#nteams{font:inherit;font-family:var(--display);font-weight:800;font-size:2.2rem;width:5ch;padding:6px 10px;border:2px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center}
+.btn.big{font-size:1.3rem;padding:12px 22px}
+</style>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Rates, Ratios, Coordinates and Transformations Revision Game</h1>
+      <p class="sub">Year 7 Maths. Tech-free. Pick a tile, answer on your whiteboard.</p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="undo">Undo last award</button>
+      <button class="btn" id="adjust" aria-pressed="false">Adjust scores</button>
+      <button class="btn primary" id="end">End game</button>
+    </div>
+  </header>
+  <section class="scores" id="scores" aria-label="Scoreboard"></section>
+  <section class="board" id="board" aria-label="Question board"></section>
+</div>
+<div class="sheet" id="qsheet" hidden><div class="in">
+  <div class="meta"><span class="tag" id="qtag"></span><span class="pv" id="qpts"></span><button class="btn" id="back">Back to board</button></div>
+  <p class="qtext" id="qtext"></p>
+  <p class="note" id="picknote"></p>
+  <div class="pick" id="pick"></div>
+  <div class="row">
+    <button class="btn primary" id="award">Award points</button>
+    <button class="btn" id="nowin">No winners</button>
+    <button class="btn" id="redo" hidden>Change award</button>
+    <button class="btn primary" id="showsol">Show solution</button>
+  </div>
+  <div class="solution" id="sol" hidden></div>
+</div></div>
+<div class="sheet" id="endsheet" hidden><div class="in">
+  <div class="meta"><h1>Final ranking</h1><button class="btn" id="resume">Back to game</button></div>
+  <ol class="rank" id="rank"></ol>
+  <div class="row"><button class="btn warn" id="reset">Start a new game</button><span class="note" id="resetnote"></span></div>
+</div></div>
+<div class="sheet" id="setup" hidden><div class="in setup">
+  <h1>Rates, Ratios, Coordinates and Transformations Revision Game</h1>
+  <div id="setupform" class="row">
+    <label for="nteams" class="qtext">How many teams are playing?</label>
+    <input id="nteams" type="number" min="2" max="12" step="1" inputmode="numeric" required>
+    <button class="btn primary big" type="button" id="startgame">Start game</button>
+  </div>
+  <p class="note" id="setupnote" role="alert"></p>
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+const DATA = {"skills": ["Ratios", "Rates and travel", "Linear rules and tables", "Patterns and rules", "Transformations"], "qs": [{"skill": "Ratios", "pts": 10, "q": "Complete the equivalent ratio: $4 : 1 = \\square : 6$", "ans": "$24 : 6$", "sol": ["$\\text{Multiplier} = 6 \\div 1$", "$= 6$", "$4 \\times 6 = 24$", "$4 : 1 = 24 : 6$"], "err": null, "n": 1}, {"skill": "Ratios", "pts": 10, "q": "Write $18 : 24$ in simplest form.", "ans": "$3 : 4$", "sol": ["$\\text{HCF of 18 and 24} = 6$", "$18 : 24 = (18 \\div 6) : (24 \\div 6)$", "$= 3 : 4$"], "err": "Dividing by 2 only and stopping at $9 : 12$. Keep dividing until the HCF is 1.", "n": 2}, {"skill": "Ratios", "pts": 20, "q": "Complete the equivalent ratio: $84 : 120 = \\square : 10$", "ans": "$7 : 10$", "sol": ["$\\text{Divisor} = 120 \\div 10$", "$= 12$", "$84 \\div 12 = 7$", "$84 : 120 = 7 : 10$"], "err": null, "n": 3}, {"skill": "Ratios", "pts": 20, "q": "Write the ratio 20 minutes to 2 hours in simplest form.", "ans": "$1 : 6$", "sol": ["$2 \\text{ hours} = 120 \\text{ minutes}$", "$20 : 120 = (20 \\div 20) : (120 \\div 20)$", "$= 1 : 6$"], "err": "Writing $20 : 2$. Both quantities must be in the same unit first.", "n": 4}, {"skill": "Ratios", "pts": 30, "q": "Write the ratio \\$3.00 to \\$0.75 in simplest form.", "ans": "$4 : 1$", "sol": ["$\\$3.00 = 300 \\text{ cents}$", "$\\$0.75 = 75 \\text{ cents}$", "$300 : 75 = (300 \\div 75) : (75 \\div 75)$", "$= 4 : 1$"], "err": "Leaving decimals in the answer, such as $3 : 0.75$. A ratio in simplest form uses whole numbers.", "n": 5}, {"skill": "Ratios", "pts": 30, "q": "Write the ratio 45 cm to 1.5 m in simplest form.", "ans": "$3 : 10$", "sol": ["$1.5 \\text{ m} = 150 \\text{ cm}$", "$45 : 150 = (45 \\div 15) : (150 \\div 15)$", "$= 3 : 10$"], "err": null, "n": 6}, {"skill": "Ratios", "pts": 40, "q": "Share \\$72 between Ava and Ben in the ratio $5 : 3$.", "ans": "Ava \\$45, Ben \\$27", "sol": ["$\\text{Total parts} = 5 + 3$", "$= 8$", "$\\text{One part} = 72 \\div 8$", "$= \\$9$", "$\\text{Ava} = 5 \\times 9$", "$= \\$45$", "$\\text{Ben} = 3 \\times 9$", "$= \\$27$"], "err": "Dividing \\$72 by 5 and by 3. Divide by the total number of parts, 8.", "n": 7}, {"skill": "Ratios", "pts": 40, "q": "Square $A$ has side length 3 cm and Square $B$ has side length 5 cm. Find the ratio of their areas (Area of $A$ : Area of $B$).", "ans": "$9 : 25$", "sol": ["$\\text{Area of } A = 3 \\times 3$", "$= 9 \\text{ cm}^2$", "$\\text{Area of } B = 5 \\times 5$", "$= 25 \\text{ cm}^2$", "$\\text{Ratio} = 9 : 25$"], "err": "Answering $3 : 5$. That is the ratio of the side lengths, not the areas.", "n": 8}, {"skill": "Ratios", "pts": 50, "q": "There are some boys and girls in a hall. 6 boys leave, and now the numbers of boys and girls are the same. Then 10 girls leave, and the ratio of boys to girls becomes $3 : 1$. How many boys were in the hall at the start?", "ans": "21 boys", "sol": ["After 6 boys leave, let there be $g$ boys and $g$ girls.", "After 10 girls leave there are $g$ boys and $(g - 10)$ girls.", "Boys are 3 times girls, so $g = 3(g - 10)$", "$g = 3g - 30$", "$2g = 30$", "$g = 15$", "$\\text{Boys at start} = 15 + 6$", "$= 21$", "Check: 21 boys and 15 girls; then 15 and 15; then 15 and 5, which is $3 : 1$."], "err": "Giving the number of girls, 15, or the number of boys after they leave. Re-read what the question asks for.", "n": 9}, {"skill": "Ratios", "pts": 50, "q": "The side lengths of two squares are in the ratio $2 : 5$. The smaller square has an area of 12 cm$^2$. Find the area of the larger square.", "ans": "75 cm$^2$", "sol": ["$\\text{Ratio of areas} = (2 \\times 2) : (5 \\times 5)$", "$= 4 : 25$", "$4 \\text{ parts} = 12 \\text{ cm}^2$", "$1 \\text{ part} = 3 \\text{ cm}^2$", "$\\text{Larger area} = 25 \\times 3$", "$= 75 \\text{ cm}^2$"], "err": "Using $2 : 5$ for the areas and answering 30 cm$^2$. Areas use the squares of the side lengths.", "n": 10}, {"skill": "Rates and travel", "pts": 10, "q": "Liam earns \\$240 every 6 hours. Write this rate in dollars per hour.", "ans": "\\$40 per hour", "sol": ["$\\text{Rate} = 240 \\div 6$", "$= \\$40 \\text{ per hour}$"], "err": null, "n": 11}, {"skill": "Rates and travel", "pts": 10, "q": "A car travels 180 km in 3 hours at a steady speed. Find its speed in km/h.", "ans": "60 km/h", "sol": ["$\\text{Speed} = 180 \\div 3$", "$= 60 \\text{ km/h}$"], "err": null, "n": 12}, {"skill": "Rates and travel", "pts": 20, "q": "A writer types 210 words in 3.5 minutes. Write this rate in words per minute.", "ans": "60 words per minute", "sol": ["$\\text{Rate} = 210 \\div 3.5$", "$= 2100 \\div 35$", "$= 60 \\text{ words per minute}$"], "err": null, "n": 13}, {"skill": "Rates and travel", "pts": 20, "q": "A tap fills 45 L in 2.5 minutes. Write this rate in litres per minute.", "ans": "18 L per minute", "sol": ["$\\text{Rate} = 45 \\div 2.5$", "$= 90 \\div 5$", "$= 18 \\text{ L per minute}$"], "err": null, "n": 14}, {"skill": "Rates and travel", "pts": 30, "q": "Rice is sold in a 2 kg bag for \\$9 or a 3 kg bag for \\$12. Which bag is better value?", "ans": "The 3 kg bag (\\$4 per kg)", "sol": ["$\\text{2 kg bag} = 9 \\div 2$", "$= \\$4.50 \\text{ per kg}$", "$\\text{3 kg bag} = 12 \\div 3$", "$= \\$4.00 \\text{ per kg}$", "The 3 kg bag is better value because it costs less per kilogram."], "err": "Choosing the bag with the lower price. Compare the cost of the same amount, 1 kg.", "n": 15}, {"skill": "Rates and travel", "pts": 30, "q": "Mia walks at a steady 4 km/h for 2 hours 30 minutes. How far does she walk?", "ans": "10 km", "sol": ["$2 \\text{ h } 30 \\text{ min} = 2.5 \\text{ h}$", "$\\text{Distance} = 4 \\times 2.5$", "$= 10 \\text{ km}$"], "err": "Using 2.3 hours. 30 minutes is half an hour, so 2.5 hours.", "n": 16}, {"skill": "Rates and travel", "pts": 40, "q": "A distance-time graph for a cyclist is a straight line from (8:00 am, 0 km) to (9:30 am, 15 km). Find the cyclist's speed in km/h.", "ans": "10 km/h", "sol": ["$\\text{Time} = 9{:}30 - 8{:}00$", "$= 1.5 \\text{ h}$", "$\\text{Speed} = 15 \\div 1.5$", "$= 10 \\text{ km/h}$"], "err": "Dividing 15 by 1.3 or by 90. Write 1 h 30 min as 1.5 h.", "n": 17}, {"skill": "Rates and travel", "pts": 40, "q": "Hikers leave a lookout at 12:30 pm and walk 12 km back to the start of the trail at 6 km/h. At what time do they arrive?", "ans": "2:30 pm", "sol": ["$\\text{Time taken} = 12 \\div 6$", "$= 2 \\text{ h}$", "$\\text{Arrival} = 12{:}30 \\text{ pm} + 2 \\text{ h}$", "$= 2{:}30 \\text{ pm}$"], "err": null, "n": 18}, {"skill": "Rates and travel", "pts": 50, "q": "Zoe and Kai start a hike at 7:00 am and walk at 4 km/h to a lookout 8 km away. They rest for 1 hour, then walk back along the same trail at 8 km/h. At what time do they arrive back at the start?", "ans": "11:00 am", "sol": ["$\\text{Time to lookout} = 8 \\div 4$", "$= 2 \\text{ h}$", "$\\text{Time back} = 8 \\div 8$", "$= 1 \\text{ h}$", "$\\text{Total time} = 2 + 1 + 1$", "$= 4 \\text{ h}$", "$\\text{Arrival} = 7{:}00 \\text{ am} + 4 \\text{ h}$", "$= 11{:}00 \\text{ am}$"], "err": "Forgetting the 1-hour rest, or using 4 km/h for the walk back.", "n": 19}, {"skill": "Rates and travel", "pts": 50, "q": "A car travels 90 km in 1 hour 30 minutes. At the same speed, how long will it take to travel 150 km?", "ans": "2 hours 30 minutes", "sol": ["$\\text{Speed} = 90 \\div 1.5$", "$= 60 \\text{ km/h}$", "$\\text{Time} = 150 \\div 60$", "$= 2.5 \\text{ h}$", "$= 2 \\text{ h } 30 \\text{ min}$"], "err": "Writing 2.5 hours as 2 hours 5 minutes. Half an hour is 30 minutes.", "n": 20}, {"skill": "Linear rules and tables", "pts": 10, "q": "Using the rule $y = 3x + 1$, find $y$ when $x = 4$.", "ans": "$y = 13$", "sol": ["$y = 3 \\times 4 + 1$", "$y = 12 + 1$", "$y = 13$"], "err": null, "n": 21}, {"skill": "Linear rules and tables", "pts": 10, "q": "Using the rule $y = 4x - 3$, find $y$ when $x = 0$.", "ans": "$y = -3$", "sol": ["$y = 4 \\times 0 - 3$", "$y = 0 - 3$", "$y = -3$"], "err": null, "n": 22}, {"skill": "Linear rules and tables", "pts": 20, "q": "Complete the table for the rule $y = 3x - 1$ when $x = -2, -1, 0, 1, 2$.", "ans": "$-7, -4, -1, 2, 5$", "sol": ["When $x = -2$:", "$y = 3(-2) - 1$", "$y = -7$", "When $x = -1$:", "$y = 3(-1) - 1$", "$y = -4$", "When $x = 0$:", "$y = 3 \\times 0 - 1$", "$y = -1$", "When $x = 1$:", "$y = 3 \\times 1 - 1$", "$y = 2$", "When $x = 2$:", "$y = 3 \\times 2 - 1$", "$y = 5$"], "err": "Writing $3(-2) - 1 = -5$. Subtracting 1 from $-6$ gives $-7$.", "n": 23}, {"skill": "Linear rules and tables", "pts": 20, "q": "Using the rule $y = 2x + 5$, find $y$ when $x = -3$.", "ans": "$y = -1$", "sol": ["$y = 2 \\times (-3) + 5$", "$y = -6 + 5$", "$y = -1$"], "err": null, "n": 24}, {"skill": "Linear rules and tables", "pts": 30, "q": "True or false, with reasoning: the point $(3, 7)$ lies on the line $y = 2x + 1$.", "ans": "True", "sol": ["Substitute $x = 3$:", "$y = 2 \\times 3 + 1$", "$y = 7$", "True, because the rule gives the point $(3, 7)$."], "err": "Substituting the 7 for $x$. The first coordinate is always $x$.", "n": 25}, {"skill": "Linear rules and tables", "pts": 30, "q": "True or false, with reasoning: the graph of $y = 3x + 2$ passes through the origin.", "ans": "False", "sol": ["At the origin, $x = 0$:", "$y = 3 \\times 0 + 2$", "$y = 2$", "False. The line passes through $(0, 2)$, not $(0, 0)$."], "err": null, "n": 26}, {"skill": "Linear rules and tables", "pts": 40, "q": "True or false, with reasoning: this table shows a linear pattern. $x$: 0, 1, 2, 3, 4 and $y$: 2, 5, 8, 12, 15.", "ans": "False", "sol": ["Differences in $y$: $5 - 2 = 3$", "$8 - 5 = 3$", "$12 - 8 = 4$", "$15 - 12 = 3$", "False. The $y$-values do not go up by the same amount each time."], "err": "Checking only the first two differences. Every difference must be the same.", "n": 27}, {"skill": "Linear rules and tables", "pts": 40, "q": "Find the rule for this table. $x$: 0, 1, 2, 3 and $y$: 4, 6, 8, 10.", "ans": "$y = 2x + 4$", "sol": ["$y$ increases by 2 each time, so the rule starts $y = 2x + \\ldots$", "The table starts at $(0, 4)$, so add 4.", "$y = 2x + 4$", "Check with $x = 3$:", "$y = 2 \\times 3 + 4$", "$y = 10$"], "err": null, "n": 28}, {"skill": "Linear rules and tables", "pts": 50, "q": "Find the rule for this table. $x$: 1, 2, 3, 4 and $y$: 1, 4, 7, 10.", "ans": "$y = 3x - 2$", "sol": ["$y$ increases by 3 each time, so the rule starts $y = 3x + \\ldots$", "Work back one step to $x = 0$:", "$y = 1 - 3$", "$y = -2$", "$y = 3x - 2$", "Check with $x = 4$:", "$y = 3 \\times 4 - 2$", "$y = 10$"], "err": "Writing $y = 3x + 1$ by using the first $y$-value. That value belongs to $x$ of 1, not 0.", "n": 29}, {"skill": "Linear rules and tables", "pts": 50, "q": "The rules $y = 2x + 1$ and $y = x + 4$ give the same $y$-value for one value of $x$. Find that point.", "ans": "$(3, 7)$", "sol": ["Make a table:", "$x = 1$: $2(1) + 1$ gives 3 and $1 + 4$ gives 5", "$x = 2$: $2(2) + 1$ gives 5 and $2 + 4$ gives 6", "$x = 3$: $2(3) + 1$ gives 7 and $3 + 4$ gives 7", "Both rules give 7 when $x = 3$.", "The point is $(3, 7)$."], "err": "Stopping at $x = 3$ without giving the $y$-value. A point needs both coordinates.", "n": 30}, {"skill": "Patterns and rules", "pts": 10, "q": "Squares in a row are made from matches: 1 square uses 4 matches, 2 squares use 7, 3 squares use 10. How many matches do 4 squares use?", "ans": "13 matches", "sol": ["Each new square adds 3 matches.", "$\\text{Matches} = 10 + 3$", "$= 13$"], "err": null, "n": 31}, {"skill": "Patterns and rules", "pts": 10, "q": "In the table $x$: 1, 2, 3, 4 and $y$: 6, 9, 12, 15, by how much does $y$ increase each time $x$ increases by 1?", "ans": "3", "sol": ["$\\text{Increase} = 9 - 6$", "$= 3$", "Each difference is 3."], "err": null, "n": 32}, {"skill": "Patterns and rules", "pts": 20, "q": "Triangles in a row are made from matches: 1 triangle uses 3 matches, 2 triangles use 5, 3 triangles use 7. How many matches for 4 triangles and for 5 triangles?", "ans": "9 and 11", "sol": ["Each new triangle adds 2 matches.", "$\\text{4 triangles} = 7 + 2$", "$= 9$", "$\\text{5 triangles} = 9 + 2$", "$= 11$"], "err": null, "n": 33}, {"skill": "Patterns and rules", "pts": 20, "q": "A pattern uses 5 matches for 1 shape, 9 for 2 shapes and 13 for 3 shapes. If the points are graphed and the line extended, where does it cross the $y$-axis?", "ans": "$(0, 1)$", "sol": ["Each step adds 4 matches.", "Work back one step to $x = 0$:", "$y = 5 - 4$", "$y = 1$", "The line crosses the $y$-axis at $(0, 1)$."], "err": "Giving $(0, 5)$. The point $(1, 5)$ is not on the $y$-axis; the $y$-axis is where $x = 0$.", "n": 34}, {"skill": "Patterns and rules", "pts": 30, "q": "Squares in a row use 4, 7, 10, 13 matches for 1, 2, 3, 4 squares. Write a rule linking the number of squares $x$ and the number of matches $y$.", "ans": "$y = 3x + 1$", "sol": ["Each square adds 3 matches, so the rule starts $y = 3x + \\ldots$", "Work back one step to $x = 0$:", "$y = 4 - 3$", "$y = 1$", "$y = 3x + 1$", "Check with $x = 2$:", "$y = 3 \\times 2 + 1$", "$y = 7$"], "err": "Writing $y = x + 3$. The number added each step goes in front of $x$.", "n": 35}, {"skill": "Patterns and rules", "pts": 30, "q": "Triangles in a row use 3, 5, 7, 9 matches for 1, 2, 3, 4 triangles. Write a rule linking the number of triangles $x$ and the number of matches $y$.", "ans": "$y = 2x + 1$", "sol": ["Each triangle adds 2 matches, so the rule starts $y = 2x + \\ldots$", "Work back one step to $x = 0$:", "$y = 3 - 2$", "$y = 1$", "$y = 2x + 1$"], "err": null, "n": 36}, {"skill": "Patterns and rules", "pts": 40, "q": "A row of squares follows the rule $y = 3x + 1$, where $x$ is the number of squares and $y$ is the number of matches. How many matches are needed for 30 squares?", "ans": "91 matches", "sol": ["$y = 3 \\times 30 + 1$", "$y = 90 + 1$", "$y = 91$"], "err": "Multiplying 13 matches (for 4 squares) by a scale factor. The rule must be used.", "n": 37}, {"skill": "Patterns and rules", "pts": 40, "q": "A pattern follows the rule $y = 5x + 2$, where $x$ is the number of shapes and $y$ is the number of matches. How many shapes can be made with exactly 77 matches?", "ans": "15 shapes", "sol": ["$5x + 2 = 77$", "$5x = 75$", "$x = 15$", "Check: $5 \\times 15 + 2 = 77$"], "err": "Substituting 77 for $x$. Here 77 is the number of matches, which is $y$.", "n": 38}, {"skill": "Patterns and rules", "pts": 50, "q": "A match pattern has these values: $x = 2$ gives $y = 11$, $x = 3$ gives $y = 15$, $x = 5$ gives $y = 23$. Find the rule, then find the number of matches for 20 shapes.", "ans": "$y = 4x + 3$; 83 matches", "sol": ["As $x$ goes from 2 to 3, $y$ increases by 4, so the rule starts $y = 4x + \\ldots$", "$11 = 4 \\times 2 + c$", "$c = 3$", "$y = 4x + 3$", "Check with $x = 5$:", "$y = 4 \\times 5 + 3$", "$y = 23$", "For 20 shapes:", "$y = 4 \\times 20 + 3$", "$y = 83$"], "err": "Using $23 - 15$, which is 8, as the step. $x$ jumps by 2 there, so the step per shape is $8 \\div 2$, which is 4.", "n": 39}, {"skill": "Patterns and rules", "pts": 50, "q": "Hexagons in a row use 6, 11, 16 matches for 1, 2, 3 hexagons. Can exactly 100 matches be used to make a row of hexagons with none left over? Explain.", "ans": "No; 19 hexagons use 96 matches, 4 are left over", "sol": ["Each hexagon adds 5 matches, and working back to 0 hexagons gives 1 match.", "$y = 5x + 1$", "$5x + 1 = 100$", "$5x = 99$", "99 is not a multiple of 5, so $x$ is not a whole number.", "$19 \\text{ hexagons} = 5 \\times 19 + 1$", "$= 96 \\text{ matches}$", "No. 19 hexagons use 96 matches, leaving 4."], "err": "Writing $y = 6x$. Neighbouring hexagons share a side, so each new hexagon adds only 5 matches.", "n": 40}, {"skill": "Transformations", "pts": 10, "q": "The point $(3, 5)$ is reflected in the $x$-axis. Find the coordinates of its image.", "ans": "$(3, -5)$", "sol": ["Reflecting in the $x$-axis keeps $x$ and changes the sign of $y$.", "$(3, 5) \\to (3, -5)$"], "err": "Changing the sign of $x$ instead. That is a reflection in the $y$-axis.", "n": 41}, {"skill": "Transformations", "pts": 10, "q": "The point $(2, -4)$ is translated 3 units right and 2 units up. Find its image.", "ans": "$(5, -2)$", "sol": ["$\\text{New } x = 2 + 3$", "$= 5$", "$\\text{New } y = -4 + 2$", "$= -2$", "Image: $(5, -2)$"], "err": null, "n": 42}, {"skill": "Transformations", "pts": 20, "q": "The point $(-3, 1)$ is reflected in the $y$-axis. Find its image.", "ans": "$(3, 1)$", "sol": ["Reflecting in the $y$-axis changes the sign of $x$ and keeps $y$.", "$(-3, 1) \\to (3, 1)$"], "err": null, "n": 43}, {"skill": "Transformations", "pts": 20, "q": "The point $(4, 2)$ is translated 5 units left and 3 units down. Find its image.", "ans": "$(-1, -1)$", "sol": ["$\\text{New } x = 4 - 5$", "$= -1$", "$\\text{New } y = 2 - 3$", "$= -1$", "Image: $(-1, -1)$"], "err": null, "n": 44}, {"skill": "Transformations", "pts": 30, "q": "The point $(3, 1)$ is rotated $90^\\circ$ anticlockwise about the origin. Find its image.", "ans": "$(-1, 3)$", "sol": ["From $O$, the point is 3 right and 1 up.", "After a quarter turn anticlockwise: 3 up and 1 left.", "$90^\\circ$ anticlockwise: $(x, y) \\to (-y, x)$", "$(3, 1) \\to (-1, 3)$"], "err": "Rotating clockwise and answering $(1, -3)$. Anticlockwise turns from the positive $x$-axis towards the positive $y$-axis.", "n": 45}, {"skill": "Transformations", "pts": 30, "q": "The point $(2, 5)$ is rotated $180^\\circ$ about the origin. Find its image.", "ans": "$(-2, -5)$", "sol": ["A half turn changes the sign of both coordinates.", "$180^\\circ$: $(x, y) \\to (-x, -y)$", "$(2, 5) \\to (-2, -5)$"], "err": null, "n": 46}, {"skill": "Transformations", "pts": 40, "q": "Triangle $ABC$ has vertices $A(1, 1)$, $B(4, 1)$ and $C(1, 3)$. It is reflected in the $y$-axis, then translated 2 units up. Find the new vertices.", "ans": "$A'(-1, 3)$, $B'(-4, 3)$, $C'(-1, 5)$", "sol": ["Reflect in the $y$-axis: $A(1, 1) \\to (-1, 1)$", "$B(4, 1) \\to (-4, 1)$", "$C(1, 3) \\to (-1, 3)$", "Translate 2 up: $(-1, 1) \\to A'(-1, 3)$", "$(-4, 1) \\to B'(-4, 3)$", "$(-1, 3) \\to C'(-1, 5)$"], "err": "Changing the $y$-coordinates when reflecting in the $y$-axis. A reflection in the $y$-axis changes only the sign of $x$.", "n": 47}, {"skill": "Transformations", "pts": 40, "q": "The point $P(5, 2)$ is rotated $90^\\circ$ clockwise about the origin. Find its image.", "ans": "$(2, -5)$", "sol": ["From $O$, $P$ is 5 right and 2 up.", "After a quarter turn clockwise: 5 down and 2 right.", "$90^\\circ$ clockwise: $(x, y) \\to (y, -x)$", "$(5, 2) \\to (2, -5)$"], "err": "Answering $(-2, 5)$, which is the anticlockwise rotation.", "n": 48}, {"skill": "Transformations", "pts": 50, "q": "The point $(6, 2)$ is rotated $90^\\circ$ anticlockwise about the point $O(4, 2)$, then reflected in the $y$-axis. Find its final position.", "ans": "$(-4, 4)$", "sol": ["From $O(4, 2)$, the point is 2 right and 0 up.", "After a quarter turn anticlockwise it is 0 right and 2 up from $O$.", "$\\text{Image} = (4 + 0, \\; 2 + 2)$", "$= (4, 4)$", "Reflect in the $y$-axis: $(4, 4) \\to (-4, 4)$"], "err": "Rotating about the origin instead of $O(4, 2)$. Measure from the centre of rotation.", "n": 49}, {"skill": "Transformations", "pts": 50, "q": "The point $(5, 3)$ is rotated $90^\\circ$ clockwise about the point $(2, 1)$. Find its image.", "ans": "$(4, -2)$", "sol": ["From $(2, 1)$, the point is 3 right and 2 up.", "After a quarter turn clockwise it is 2 right and 3 down.", "$\\text{Image} = (2 + 2, \\; 1 - 3)$", "$= (4, -2)$"], "err": "Using the rotation rule about the origin, which gives $(3, -5)$.", "n": 50}], "teams": 7};
+const KEY = "Year7_RatesRatiosCoordinates_RevisionGame";
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function tex(m){
+  try{ if(window.katex) return katex.renderToString(m,{output:"mathml",throwOnError:false}); }catch(e){}
+  return "<span>"+esc(m)+"</span>";
+}
+function rich(s){ // text with $math$; \$ and \% are literal
+  let out="", buf="", math=false;
+  const flush=()=>{ out += math ? tex(buf) : esc(buf.replace(/\\\$/g,"$").replace(/\\%/g,"%").replace(/``/g,"\u201c").replace(/''/g,"\u201d")); buf=""; };
+  for(let i=0;i<s.length;i++){
+    if(s[i]==="\\" && s[i+1]==="$"){ buf+="\\$"; i++; }
+    else if(s[i]==="$"){ flush(); math=!math; }
+    else buf+=s[i];
+  }
+  flush(); return out;
+}
+function fresh(n){ return {names:Array.from({length:n},(_,i)=>"Team "+(i+1)), scores:Array(n).fill(0), used:{}, history:[]}; }
+let S = null, cur = null, picked = new Set(), adjusting = false, armed = false;
+function load(d){ if(d && Array.isArray(d.scores) && d.scores.length>=2 && Array.isArray(d.names) && d.names.length===d.scores.length) S = d; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function drawScores(){
+  const max = Math.max(...S.scores);
+  $("scores").innerHTML = S.names.map((n,i)=>`<div class="team${max>0&&S.scores[i]===max?" lead":""}">
+    ${adjusting?`<input id="name${i}" data-name="${i}" value="${esc(n).replace(/"/g,"&quot;")}" aria-label="Team ${i+1} name">`:`<span class="nm">${esc(n)}</span>`}
+    <span class="sc">${S.scores[i]}</span>
+    ${adjusting?`<div class="adj"><button data-adj="${i}" data-d="-5" aria-label="Take 5 from ${esc(n)}">&minus;5</button><button data-adj="${i}" data-d="5" aria-label="Add 5 to ${esc(n)}">+5</button></div>`:""}
+  </div>`).join("");
+  $("undo").disabled = !S.history.length;
+}
+function drawBoard(){
+  $("board").innerHTML = DATA.skills.map(sk=>`<div class="col">${
+    DATA.qs.filter(q=>q.skill===sk).map(q=>`<button class="tile${S.used[q.n]?" used":""}" data-q="${q.n}" aria-label="Question ${q.n}, ${q.pts} points${S.used[q.n]?", used":""}"><small>${q.n}</small>${q.pts}</button>`).join("")
+  }</div>`).join("");
+}
+function drawQ(){
+  const q = cur, u = S.used[q.n];
+  $("qtag").textContent = "Question "+q.n;
+  $("qpts").textContent = q.pts+" points";
+  $("qtext").innerHTML = rich(q.q);
+  $("pick").innerHTML = S.names.map((n,i)=>`<button data-t="${i}" aria-pressed="${u?u.includes(i):picked.has(i)}"${u?" disabled":""}>${esc(n)}</button>`).join("");
+  $("picknote").textContent = u ? (u.length ? "Points awarded to "+u.map(i=>S.names[i]).join(", ")+"." : "No winners for this question.") : "Select every team with a correct whiteboard, then award the points.";
+  $("award").hidden = $("nowin").hidden = !!u;
+  $("redo").hidden = !u;
+}
+function openQ(n){ cur = DATA.qs.find(q=>q.n===n); picked = new Set(); $("sol").hidden = true; drawQ(); $("qsheet").hidden = false; $("qsheet").scrollTop = 0; }
+function award(w){ S.used[cur.n] = w; w.forEach(i=>S.scores[i]+=cur.pts); S.history.push(cur.n); save(); drawScores(); drawBoard(); drawQ(); }
+function revoke(n){
+  const q = DATA.qs.find(x=>x.n===n), w = S.used[n]; if(!w) return;
+  w.forEach(i=>S.scores[i]-=q.pts); delete S.used[n]; S.history = S.history.filter(x=>x!==n);
+  save(); drawScores(); drawBoard();
+}
+function showSol(){
+  const q = cur;
+  $("sol").innerHTML = `<div class="ans">Answer: ${rich(q.ans)}</div>` + q.sol.map(l=>`<div>${rich(l)}</div>`).join("") + (q.err?`<div class="err">Common error: ${rich(q.err)}</div>`:"");
+  $("sol").hidden = false;
+}
+function drawRank(){
+  const order = S.scores.map((s,i)=>({s,i})).sort((a,b)=>b.s-a.s);
+  let pos = 0, prev = null;
+  $("rank").innerHTML = order.map((o,k)=>{ if(o.s!==prev){pos=k+1;prev=o.s;} return `<li class="${pos===1?"first":""}"><span class="pos">${pos}</span><span class="who">${esc(S.names[o.i])}</span><span class="tot">${o.s}</span></li>`; }).join("");
+}
+$("board").addEventListener("click",e=>{ const b=e.target.closest("[data-q]"); if(b) openQ(+b.dataset.q); });
+$("pick").addEventListener("click",e=>{ const b=e.target.closest("[data-t]"); if(!b||b.disabled) return; const i=+b.dataset.t; picked.has(i)?picked.delete(i):picked.add(i); b.setAttribute("aria-pressed",picked.has(i)); });
+$("award").onclick = ()=>{ if(!picked.size){ $("picknote").textContent="No team is selected. Select the winning teams, or choose No winners."; return; } award([...picked].sort((a,b)=>a-b)); };
+$("nowin").onclick = ()=>award([]);
+$("redo").onclick = ()=>{ revoke(cur.n); picked = new Set(); drawQ(); };
+$("showsol").onclick = showSol;
+$("back").onclick = ()=>{ $("qsheet").hidden = true; };
+$("undo").onclick = ()=>{ if(S.history.length) revoke(S.history[S.history.length-1]); };
+$("adjust").onclick = ()=>{ adjusting=!adjusting; $("adjust").setAttribute("aria-pressed",adjusting); $("adjust").textContent = adjusting?"Done adjusting":"Adjust scores"; drawScores(); };
+$("scores").addEventListener("click",e=>{ const b=e.target.closest("[data-adj]"); if(!b) return; S.scores[+b.dataset.adj]+= +b.dataset.d; save(); drawScores(); });
+$("scores").addEventListener("change",e=>{ const i=e.target.dataset.name; if(i===undefined) return; S.names[+i] = e.target.value.trim() || "Team "+(+i+1); save(); });
+$("end").onclick = ()=>{ armed=false; $("reset").textContent="Start a new game"; $("resetnote").textContent=""; drawRank(); $("endsheet").hidden=false; };
+$("resume").onclick = ()=>{ $("endsheet").hidden = true; };
+$("reset").onclick = ()=>{
+  if(!armed){ armed=true; $("reset").textContent="Yes, clear all scores"; $("resetnote").textContent="This clears every score and reopens all 50 tiles."; return; }
+  S = null; try{ localStorage.removeItem(KEY); }catch(e){} $("endsheet").hidden = true; askTeams();
+};
+function askTeams(){ $("setupnote").textContent=""; $("setup").hidden = false; $("nteams").focus(); }
+function startGame(){
+  const n = Number($("nteams").value);
+  if(!Number.isInteger(n) || n<2 || n>12){ $("setupnote").textContent="Enter a whole number of teams from 2 to 12."; return; }
+  S = fresh(n); save(); drawScores(); drawBoard(); $("setup").hidden = true;
+}
+$("startgame").addEventListener("click",startGame);
+$("nteams").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); startGame(); } });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && S){ $("qsheet").hidden = true; $("endsheet").hidden = true; } });
+function start(d){
+  if(d && d.S) load(d.S); else { try{ load(JSON.parse(localStorage.getItem(KEY))); }catch(e){} }
+  if(S){ drawScores(); drawBoard(); } else askTeams();
+}
+window.claude?.hot?.snapshot?.(()=>(S?{S}:{}));
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
+
+</body></html>
